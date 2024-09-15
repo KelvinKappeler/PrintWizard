@@ -1,0 +1,103 @@
+body {
+    font-family: monospace;
+}
+
+
+#trace-display{
+    margin-left: 50px;
+}
+
+.line_number {
+    display: inline-block;
+    width: 3em;
+    text-align: end;
+}
+
+.line_numbers {
+    display: flex;
+    flex-direction: column;
+}
+
+.line {
+    display: block;
+}
+
+.trace_item {
+    display: block;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.flex_row {
+    display: flex;
+    flex-direction: raw;
+}
+
+.flex_col {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.code {
+    display: flex;
+    flex-direction: row;
+
+}
+
+.indentation {
+    display: inline;
+    background-color: white;
+}
+
+.none {
+    display: inline;
+}
+
+.expression {
+    display: inline;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    background-color: #CAC7C7;
+    border-radius: 3px;
+}
+
+.result {
+    display: inline-block;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    background-color: #e3be6b;
+    border-radius: 3px;
+}
+
+.write {
+    display: inline-block;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    background-color: #3db1a6;
+    border-radius: 3px;
+}
+
+.inspector {
+    float: right;
+}
+
+.object {
+    display: block;
+    border: solid black;
+    border-radius: 5px;
+    padding: 1em;
+    margin: 2px;
+}
+
+.button {
+    border:  ridge;
+    display: inline-block;
+}
