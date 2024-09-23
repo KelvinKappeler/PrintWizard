@@ -3,26 +3,35 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Print Wizard</title>
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="printwizard">
+    <link rel="icon" type="image/x-icon" href="res/favicon.ico">
+    <link rel="stylesheet" href="printwizard.css">
 </head>
-
 
 <body>
     <main>
-        <script  type="module" src="displayTrace">
+        <script  type="module" src="displayTrace"></script>
 
-              
-        </script>
-        <id id="trace-display">
-            <div id="trace">
+        <div class="topnav">
+            <a class="active" href="#home">PrintWizard</a>
+            <a href="#box1">Box1</a>
+            <a href="#box2">Box2</a>
+            <a href="#box3">Box3</a>
+            <label>
+                <input type="text" placeholder="Search..">
+            </label>
+        </div>
 
-            </div>
-        </id>
-    
+        <div class="leftPart">
+            <img src="res/logo.png" alt="PrintWizard Logo" id="logo">
+        </div>
+
+        <div class="rightPart">
+            <id id="trace-display">
+                <div id="trace">
+                </div>
+            </id>
+        </div>
 
     </main>
 </body>

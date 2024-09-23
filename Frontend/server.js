@@ -1,10 +1,9 @@
 const http = require("http");
 const fs = require('fs').promises;
 
+const ProjectFile = './../'
 const host = 'localhost';
 const port = 8000;
-
-
 
 const index = function (req, res) {
 
@@ -17,7 +16,6 @@ const index = function (req, res) {
         .catch(err => {
             res.writeHead(500);
             res.end(err);
-            return;
         });
 };
 
@@ -32,7 +30,6 @@ const css = function (req, res) {
         .catch(err => {
             res.writeHead(500);
             res.end(err);
-            return;
         });
 };
 
@@ -47,10 +44,8 @@ const exposeFile = function (req, res, path) {
             console.log(err)
             res.writeHead(500);
             res.end(err);
-            return;
         });
 };
-
 
 const exposeModule = function (req, res, path) {
 
@@ -63,11 +58,9 @@ const exposeModule = function (req, res, path) {
         .catch(err => {
             res.writeHead(500);
             res.end(err);
-            return;
         });
 };
 
-const ProjectFile = './../IntegrationTest/examples/Boids'
 const requestListener = function (req, res) {
     switch (req.url) {
         case "/":
@@ -108,7 +101,6 @@ const requestListener = function (req, res) {
             console.assert(false);
     }
 }
-
 
 const server = http.createServer(requestListener);
 server.listen(port, host, () => {

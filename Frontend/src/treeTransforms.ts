@@ -1,39 +1,19 @@
-export {
-    scopedContextTransform,
-    EventWithContext
-};
-import {
-    Event,
-    EventKind,
-    EventKindTypes,
-    ExecutionStep
-} from "./event";
-
-/*******************************************************
- **************** transform ******************
- *******************************************************/
-
-/**************
- ********* types
- **************/
+export { scopedContextTransform, EventWithContext }
+import { Event, EventKind, EventKindTypes, ExecutionStep } from "./event"
 
 type ExecutionWithContext<Context, State> = EventWithContext<Context, State> | ExecutionStep
 
-
-// an event is an ordered list of execution steps
-// an event represent a logical group of steps
+/**
+ * Represents an event with its context and state
+ * An event is an ordered list of execution steps
+ */
 interface EventWithContext<Context, State> {
     type: 'Event',
     context: Context, 
     state: State,
-    // the ordered list of executions steps 
     executions: () => ExecutionWithContext<Context, State>[],
     kind: EventKind,
 }
-
-/**************
- ********* implementation
- **************/
 
 function scopedContextTransform<Context, State>(
     root: Event,
@@ -57,7 +37,6 @@ function scopedContextTransform<Context, State>(
                     children.push(childWithContext)
 
                     switch (child.kind.type) {
-                        // we don't pass state through change of control flow
                         case EventKindTypes.Flow:
                             break;
                         default:
@@ -70,7 +49,6 @@ function scopedContextTransform<Context, State>(
             type: 'Event',
             context: context, 
             state: aggregate(event, childStates),
-            // the ordered list of executions steps 
             executions: () => children,
             kind: event.kind,
         }

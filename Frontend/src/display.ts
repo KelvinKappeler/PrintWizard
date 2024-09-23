@@ -35,8 +35,6 @@ const SPACE = '\u00A0';
  *******************************************************/
 
 function toStepGroup(event: EventWithContext<ItemContext, ItemState>): StepsGroup {
-
-
     let groups: StepsGroup[] = []
     let children: HTMLElement[] = []
     let steps: HTMLElement[] = []
@@ -322,7 +320,6 @@ class FunctionFlowFlowGroup implements StepsGroup {
 
 }
 
-
 /*******************************************************
  **************** compute context ******************
  *******************************************************/
@@ -335,8 +332,6 @@ type ItemState = {
     writes: Write[]
 }
 
-
-
 /**************
  ********* Context/State computation
  **************/
@@ -344,8 +339,6 @@ type ItemState = {
 const initialContext: ItemContext = {
     ident: 0
 }
-
-
 
 function propagateItemContext(event: Event, ctx: ItemContext): ItemContext {
     switch (event.kind.type) {
@@ -699,7 +692,6 @@ function appendInspector(item: HTMLElement): DisplayReferenceData {
  ********* UI for Identifier
  **************/
 
-
 function displayIdentifier(ident: Identifier, model: DisplayReferenceData): Node[] {
     switch (ident.dataType) {
         case DataType.LocalIdentifier:
@@ -817,7 +809,7 @@ enum PrintWizardStyle {
     LineNumber = 'line_number',
     TraceItem = 'trace_item',
     Object = 'object',
-    Identation = 'indentation',
+    Indentation = 'indentation',
     Code = 'code',
     Expression = 'expression',
     Result = 'result',
@@ -830,9 +822,9 @@ enum PrintWizardStyle {
 
 }
 
-/**************
- ********* primitives
- **************/
+//===========================
+//======= Primitives ========
+//===========================
 
 function hide(elem: HTMLElement) {
     elem.style.display = 'none'
@@ -841,7 +833,6 @@ function hide(elem: HTMLElement) {
 function show(elem: HTMLElement) {
     elem.style.display = 'block'
 }
-
 
 function clickAction(elements: Node[], action: () => void): HTMLElement {
     let span = spanEl(elements, PrintWizardStyle.Button);
@@ -886,7 +877,6 @@ function list(elements: Node[]) {
     return div;
 }
 
-
 function logicalGroup(elements: Node[]): HTMLElement {
     let div = document.createElement("div");
     elements.map(child => div.appendChild(child));
@@ -900,12 +890,9 @@ function widthBox(width: number) {
     return div;
 }
 
-
-
 function brEl(): HTMLElement {
     return document.createElement("br");
 }
-
 
 function textEl(text: string): Text {
     return document.createTextNode(text);
