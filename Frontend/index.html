@@ -5,35 +5,115 @@
     <meta charset="UTF-8">
     <title>Print Wizard</title>
     <link rel="icon" type="image/x-icon" href="res/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="modules/prism.css" rel="stylesheet" />
     <link rel="stylesheet" href="printwizard.css">
 </head>
 
 <body>
-    <main>
-        <script  type="module" src="displayTrace"></script>
+<header>
+    <a id="logo" href="#" onclick="window.location.reload()">Print Wizard</a>
+    <div class="dropdown">
+        <button class="dropdownButton" href="#">Objects <i class="bi bi-chevron-down"></i></button>
+        <div class="dropdownContent">
+            <a href="#">Player</a>
+            <a href="#">Type1</a>
+            <a href="#">Type2</a>
+        </div>
+    </div>
+    <a href="#">Settings</a>
+    <label>
+        <input type="text" placeholder="Search..">
+    </label>
+</header>
 
-        <div class="topnav">
-            <a class="active" href="#home">PrintWizard</a>
-            <a href="#box1">Box1</a>
-            <a href="#box2">Box2</a>
-            <a href="#box3">Box3</a>
-            <label>
-                <input type="text" placeholder="Search..">
-            </label>
+<main>
+    <div id="trace">
+        <pre class="line-numbers" data-line="5-7"><code class="language-java">int i = 0;
+if (i == 0) {
+i = 1;
+}
+for (int i = 0; i < 10; i++) {
+    System.out.println(i);
+}
+        </code></pre>
+    </div>
+
+    <div id="inspector">
+        <div class="inspector_tab">
+            <button class="tab_button" onclick="openInspectorTab('objectInspector')">Object</button>
+            <button class="tab_button" onclick="openInspectorTab('stateInspector')">State</button>
+            <button class="tab_button" onclick="openInspectorTab('functionInspector')">Function</button>
+            <button class="tab_button" onclick="openInspectorTab('loopInspector')">Loop</button>
+        </div>
+        <div id="objectInspector" class="inspectorContent" style="display:block;">
+            <h2>General</h2>
+            <div id="objectDescription">
+                <p><strong>Name:</strong> Kelvin</p>
+                <p><strong>Type:</strong> Player</p>
+            </div>
+            <h2>Fields</h2>
+            <table id="objectFields">
+                <tr>
+                    <td><strong>Surname:</strong></td>
+                    <td>"Big noob"</td>
+                    <td>String</td>
+                </tr>
+                <tr>
+                    <td><strong>pv:</strong></td>
+                    <td>0</td>
+                    <td>int</td>
+                </tr>
+                <tr>
+                    <td><strong>isDead:</strong></td>
+                    <td>True</td>
+                    <td>Boolean</td>
+                </tr>
+            </table>
         </div>
 
-        <div class="leftPart">
-            <img src="res/logo.png" alt="PrintWizard Logo" id="logo">
+        <div id="stateInspector" class="inspectorContent" style="display:none;">
+            <h1>State Inspector</h1>
+            <!-- You can add more content here later -->
         </div>
 
-        <div class="rightPart">
-            <id id="trace-display">
-                <div id="trace">
-                </div>
-            </id>
+        <div id="functionInspector" class="inspectorContent" style="display:none;">
+            <h1>Function Inspector</h1>
         </div>
 
-    </main>
+        <div id="loopInspector" class="inspectorContent" style="display:none;">
+            <h1>Loop Inspector</h1>
+            <!-- You can add more content here later -->
+        </div>
+    </div>
+</main>
+
+<script>
+    function openInspectorTab(inspectorName) {
+        let tabs = document.getElementsByClassName("inspectorContent");
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = "none";
+        }
+        document.getElementById(inspectorName).style.display = "block";
+
+        // Remove active class from all buttons
+        let buttons = document.getElementsByClassName("tab_button");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove("active");
+        }
+
+        // Add active class to the clicked button
+        let activeButton = document.querySelector(`button[onclick="openInspectorTab('${inspectorName}')"]`);
+        activeButton.classList.add("active");
+    }
+
+    window.onload = function() {
+        openInspectorTab('objectInspector');
+    };
+</script>
+<script src="modules/prism.js"></script>
+<!--<script type="module" src="displayTrace"></script>!-->
 </body>
+
 
 </html>
