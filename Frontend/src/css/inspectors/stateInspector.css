@@ -1,0 +1,39 @@
+#objectStateDescription {
+    border: 1px solid #1e1f22;
+    background-color: #2b2d30;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+#objectStateDescription td:nth-child(1) {
+    color: #dc8608;
+}
+
+#stateHierarchy {
+    border: 1px solid #1e1f22;
+    background-color: #2b2d30;
+    padding: 10px;
+    border-radius: 8px;
+    border-spacing: 25px;
+    width: 100%;
+}
+
+#stateHierarchy td:first-child:hover {
+    background-color: #3a3d41;
+    cursor: pointer;
+}
+
+.inspect-button {
+    background-color: #217791;
+    color: white;
+    border: none;
+    padding: 4px 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.inspect-button:hover {
+    background-color: #2c579a;
+}

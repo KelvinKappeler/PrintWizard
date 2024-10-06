@@ -1,0 +1,14 @@
+body {
+    font-family: monospace;
+    margin: 0;
+    background-color: #333;
+}
+
+main {
+    display: flex;
+    height: calc(100vh - 56px);
+}
+
+button {
+    font-family: monospace;
+}

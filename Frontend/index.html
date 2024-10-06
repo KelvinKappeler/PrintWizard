@@ -6,37 +6,88 @@
     <title>Print Wizard</title>
     <link rel="icon" type="image/x-icon" href="res/favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="modules/prism.css" rel="stylesheet" />
-    <link rel="stylesheet" href="printwizard.css">
+    <link rel="stylesheet" href="src/css/printWizard.css">
+    <link rel="stylesheet" href="src/css/header.css">
+    <link rel="stylesheet" href="src/css/trace.css">
+    <link rel="stylesheet" href="src/css/inspectors/inspector.css">
+    <link rel="stylesheet" href="src/css/inspectors/objectInspector.css">
+    <link rel="stylesheet" href="src/css/inspectors/stateInspector.css">
+    <link rel="stylesheet" href="src/css/inspectors/loopInspector.css">
 </head>
-
 <body>
 <header>
     <a id="logo" href="#" onclick="window.location.reload()">Print Wizard</a>
     <div class="dropdown">
         <button class="dropdownButton" href="#">Objects <i class="bi bi-chevron-down"></i></button>
         <div class="dropdownContent">
-            <a href="#">Player</a>
-            <a href="#">Type1</a>
-            <a href="#">Type2</a>
+            <div class="nestedDropdown">
+                <a href="#">
+                    <div class="dropdownItem">Player</div>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <div class="nestedDropdownContent">
+                    <a href="#">Bastien</a>
+                    <a href="#">Kelvin</a>
+                </div>
+            </div>
+            <div class="nestedDropdown">
+                <a href="#">
+                    <div class="dropdownItem">Weapon</div>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <div class="nestedDropdownContent">
+                    <a href="#">W1</a>
+                    <a href="#">W2</a>
+                    <a href="#">W3</a>
+                </div>
+            </div>
+            <div class="nestedDropdown">
+                <a href="#">
+                    <div class="dropdownItem">Armour</div>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                <div class="nestedDropdownContent">
+                    <a href="#">A1</a>
+                    <a href="#">A2</a>
+                    <a href="#">A3</a>
+                    <a href="#">A4</a>
+                </div>
+            </div>
         </div>
     </div>
     <a href="#">Settings</a>
     <label>
-        <input type="text" placeholder="Search..">
+        <input type="text" placeholder="Query...">
     </label>
 </header>
 
 <main>
-    <div id="trace">
-        <pre class="line-numbers" data-line="5-7"><code class="language-java">int i = 0;
-if (i == 0) {
-i = 1;
-}
-for (int i = 0; i < 10; i++) {
+    <div class="trace">
+        <div class="lineNumbers">
+            1<br>
+            2<br>
+            3<br>
+            4<br>
+            50<br>
+            51<br>
+            52<br>
+        </div>
+        <div class="traceTriangles">
+            <br>
+            <i class="bi bi-chevron-down"></i><br>
+            <br>
+            <br>
+            <i class="bi bi-chevron-down"></i><br>
+            <br>
+            <br>
+        </div>
+        <div class="traceContent">int i = 0
+<span class="keyword">if</span> <span class="parenthesis">(</span>i == 0<span class="parenthesis">)</span> <span class="brace">{</span>
+    i = 1;
+<span class="brace">}</span>
+<span class="keyword">for</span> <span class="parenthesis">(</span>int i = 0; i < 10; i++<span class="parenthesis">)</span> <span class="brace">{</span>
     System.out.println(i);
-}
-        </code></pre>
+<span class="brace">}</span></div>
     </div>
 
     <div id="inspector">
@@ -48,33 +99,81 @@ for (int i = 0; i < 10; i++) {
         </div>
         <div id="objectInspector" class="inspectorContent" style="display:block;">
             <h2>General</h2>
-            <div id="objectDescription">
-                <p><strong>Name:</strong> Kelvin</p>
-                <p><strong>Type:</strong> Player</p>
-            </div>
+            <table id="objectInspectorDescription">
+                <tr>
+                    <td><strong>Name:</strong></td>
+                    <td>Kelvin</td>
+                </tr>
+                <tr>
+                    <td><strong>Type:</strong></td>
+                    <td>Player</td>
+                </tr>
+            </table>
             <h2>Fields</h2>
             <table id="objectFields">
                 <tr>
-                    <td><strong>Surname:</strong></td>
-                    <td>"Big noob"</td>
+                    <td><strong>Name</strong></td>
+                    <td>Type</td>
+                    <td>Value</td>
+                </tr>
+                <tr>
+                    <td><strong>surname</strong></td>
                     <td>String</td>
+                    <td>"Big noob"</td>
                 </tr>
                 <tr>
-                    <td><strong>pv:</strong></td>
-                    <td>0</td>
+                    <td><strong>pv</strong></td>
                     <td>int</td>
+                    <td>0</td>
                 </tr>
                 <tr>
-                    <td><strong>isDead:</strong></td>
-                    <td>True</td>
+                    <td><strong>isDead</strong></td>
                     <td>Boolean</td>
+                    <td>True</td>
                 </tr>
             </table>
         </div>
 
         <div id="stateInspector" class="inspectorContent" style="display:none;">
-            <h1>State Inspector</h1>
-            <!-- You can add more content here later -->
+            <h2>General</h2>
+            <table id="objectStateDescription">
+                <tr>
+                    <td><strong>Name:</strong></td>
+                    <td>Kelvin</td>
+                </tr>
+                <tr>
+                    <td><strong>Type:</strong></td>
+                    <td>Player</td>
+                </tr>
+            </table>
+            <h2>Object modifications</h2>
+            <table id="stateHierarchy">
+                <tr>
+                    <td>17 | Player Kelvin = new Player("Big noob", 30);</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+                <tr>
+                    <td>74 | surname = "Big noob"</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+                <tr>
+                    <td>75 | pv = 30;</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+                <tr>
+                    <td>76 | isDead = False;</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+                <tr>
+                    <td>28 | pv = pv - damages</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+                <tr>
+                    <td>29 | isDead = True</td>
+                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
+                </tr>
+            </table>
+
         </div>
 
         <div id="functionInspector" class="inspectorContent" style="display:none;">
@@ -83,7 +182,11 @@ for (int i = 0; i < 10; i++) {
 
         <div id="loopInspector" class="inspectorContent" style="display:none;">
             <h1>Loop Inspector</h1>
-            <!-- You can add more content here later -->
+            <div id="loopDefinition">
+                for (int i = 0; i < 10; i++) {<br>
+                &nbsp &nbsp System.out.println(i);<br>
+                }
+            </div>
         </div>
     </div>
 </main>
@@ -108,10 +211,10 @@ for (int i = 0; i < 10; i++) {
     }
 
     window.onload = function() {
-        openInspectorTab('objectInspector');
+        openInspectorTab('loopInspector');
     };
 </script>
-<script src="modules/prism.js"></script>
+<script src="build/test/triangles.js"></script>
 <!--<script type="module" src="displayTrace"></script>!-->
 </body>
 

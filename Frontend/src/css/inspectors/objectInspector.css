@@ -1,0 +1,46 @@
+#objectInspectorDescription {
+    border: 1px solid #1e1f22;
+    background-color: #2b2d30;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+#objectInspectorDescription td:nth-child(1) {
+    color: #dc8608;
+}
+
+#objectFields {
+    border: 1px solid #1e1f22;
+    background-color: #2b2d30;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+#objectFields tr:first-child td {
+    color: #fbfbfb;
+    font-weight: Bold;
+    font-size: 15px;
+}
+
+#objectFields td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #bababa;
+}
+
+#objectFields tr:last-child td {
+    border-bottom: none;
+}
+
+#objectFields td:nth-child(1) {
+    color: #ffcc00;
+}
+
+#objectFields td:nth-child(2) {
+    color: #00ccff;
+}
+
+#objectFields td:nth-child(3) {
+    color: #ff6666;
+}

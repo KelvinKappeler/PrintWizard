@@ -21,7 +21,7 @@ const index = function (req, res) {
 
 const css = function (req, res) {
 
-    fs.readFile('./printwizard.css')
+    fs.readFile('./printWizard.css')
         .then(contents => {
             res.setHeader("Content-Type", "text/css");
             res.writeHead(200);

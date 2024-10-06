@@ -1,0 +1,44 @@
+.trace {
+    flex: 0.7;
+    padding: 20px;
+    background-color: #1e1f22;
+    color: #cbcbcbff;
+    overflow-y: auto;
+    font-size: 18px;
+    display: flex;
+    line-height: 2;
+}
+
+.lineNumbers {
+    text-align: right;
+    padding-right: 10px;
+    color: #858585;
+}
+
+.traceTriangles {
+    border-right: 1px solid #555;
+    padding-right: 10px;
+    padding-left: 10px;
+    color: #858585;
+}
+
+.traceTriangles i:hover {
+    color: #4383a1;
+}
+
+.traceContent {
+    padding-left: 10px;
+    white-space: pre;
+}
+
+.traceContent .keyword {
+    color: #9b68c3;
+}
+
+.traceContent .brace {
+    color: #4a76c6;
+}
+
+.traceContent .parenthesis {
+    color: #4a76c6;
+}
