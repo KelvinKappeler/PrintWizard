@@ -18,20 +18,20 @@
 <header>
     <a id="logo" href="#" onclick="window.location.reload()">Print Wizard</a>
     <div class="dropdown">
-        <button class="dropdownButton" href="#">Objects <i class="bi bi-chevron-down"></i></button>
+        <button class="dropdownButton">Objects <i class="bi bi-chevron-down"></i></button>
         <div class="dropdownContent">
             <div class="nestedDropdown">
-                <a href="#">
+                <a>
                     <div class="dropdownItem">Player</div>
                     <i class="bi bi-chevron-right"></i>
                 </a>
                 <div class="nestedDropdownContent">
-                    <a href="#">Bastien</a>
-                    <a href="#">Kelvin</a>
+                    <a href="#">p2</a>
+                    <a href="#">player</a>
                 </div>
             </div>
             <div class="nestedDropdown">
-                <a href="#">
+                <a>
                     <div class="dropdownItem">Weapon</div>
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="nestedDropdown">
-                <a href="#">
+                <a>
                     <div class="dropdownItem">Armour</div>
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -81,11 +81,11 @@
             <br>
             <br>
         </div>
-        <div class="traceContent">int i = 0
+        <div class="traceContent">int i = 0;
 <span class="keyword">if</span> <span class="parenthesis">(</span>i == 0<span class="parenthesis">)</span> <span class="brace">{</span>
     i = 1;
 <span class="brace">}</span>
-<span class="keyword">for</span> <span class="parenthesis">(</span>int i = 0; i < 10; i++<span class="parenthesis">)</span> <span class="brace">{</span>
+<span class="keyword">for</span> <span class="parenthesis">(</span>i = 0; i < 10; i++<span class="parenthesis">)</span> <span class="brace">{</span>
     System.out.println(i);
 <span class="brace">}</span></div>
     </div>
@@ -97,12 +97,12 @@
             <button class="tab_button" onclick="openInspectorTab('functionInspector')">Function</button>
             <button class="tab_button" onclick="openInspectorTab('loopInspector')">Loop</button>
         </div>
-        <div id="objectInspector" class="inspectorContent" style="display:block;">
+        <div id="objectInspector" class="inspectorContent">
             <h2>General</h2>
             <table id="objectInspectorDescription">
                 <tr>
                     <td><strong>Name:</strong></td>
-                    <td>Kelvin</td>
+                    <td>player</td>
                 </tr>
                 <tr>
                     <td><strong>Type:</strong></td>
@@ -119,7 +119,7 @@
                 <tr>
                     <td><strong>surname</strong></td>
                     <td>String</td>
-                    <td>"Big noob"</td>
+                    <td>"Bastien"</td>
                 </tr>
                 <tr>
                     <td><strong>pv</strong></td>
@@ -134,12 +134,12 @@
             </table>
         </div>
 
-        <div id="stateInspector" class="inspectorContent" style="display:none;">
+        <div id="stateInspector" class="inspectorContent">
             <h2>General</h2>
             <table id="objectStateDescription">
                 <tr>
                     <td><strong>Name:</strong></td>
-                    <td>Kelvin</td>
+                    <td>player</td>
                 </tr>
                 <tr>
                     <td><strong>Type:</strong></td>
@@ -149,11 +149,11 @@
             <h2>Object modifications</h2>
             <table id="stateHierarchy">
                 <tr>
-                    <td>17 | Player Kelvin = new Player("Big noob", 30);</td>
+                    <td>17 | Player player = new Player("Bastien", 30);</td>
                     <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
                 </tr>
                 <tr>
-                    <td>74 | surname = "Big noob"</td>
+                    <td>74 | surname = "Wizard"</td>
                     <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
                 </tr>
                 <tr>
@@ -176,11 +176,11 @@
 
         </div>
 
-        <div id="functionInspector" class="inspectorContent" style="display:none;">
+        <div id="functionInspector" class="inspectorContent">
             <h1>Function Inspector</h1>
         </div>
 
-        <div id="loopInspector" class="inspectorContent" style="display:none;">
+        <div id="loopInspector" class="inspectorContent">
             <h1>Loop Inspector</h1>
             <div id="loopDefinition">
                 for (int i = 0; i < 10; i++) {<br>
@@ -211,12 +211,11 @@
     }
 
     window.onload = function() {
-        openInspectorTab('loopInspector');
+        openInspectorTab('objectInspector');
     };
 </script>
-<script src="build/test/triangles.js"></script>
+<script src="src/js/triangle.js"></script>
 <!--<script type="module" src="displayTrace"></script>!-->
 </body>
-
 
 </html>
