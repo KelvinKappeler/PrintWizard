@@ -1,5 +1,4 @@
-.trace {
-    flex: 0.7;
+.traceBody {
     padding: 20px;
     background-color: #1e1f22;
     color: #cbcbcbff;
@@ -7,6 +6,10 @@
     font-size: 18px;
     display: flex;
     line-height: 2;
+}
+
+.trace {
+    flex: 0.7;
 }
 
 .lineNumbers {

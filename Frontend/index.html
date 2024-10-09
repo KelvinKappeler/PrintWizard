@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="src/css/printWizard.css">
     <link rel="stylesheet" href="src/css/header.css">
     <link rel="stylesheet" href="src/css/trace.css">
+    <link rel="stylesheet" href="src/css/breadcrumb.css">
     <link rel="stylesheet" href="src/css/inspectors/inspector.css">
     <link rel="stylesheet" href="src/css/inspectors/objectInspector.css">
     <link rel="stylesheet" href="src/css/inspectors/stateInspector.css">
@@ -63,31 +64,39 @@
 
 <main>
     <div class="trace">
-        <div class="lineNumbers">
-            1<br>
-            2<br>
-            3<br>
-            4<br>
-            50<br>
-            51<br>
-            52<br>
-        </div>
-        <div class="traceTriangles">
-            <br>
-            <i class="bi bi-chevron-down"></i><br>
-            <br>
-            <br>
-            <i class="bi bi-chevron-down"></i><br>
-            <br>
-            <br>
-        </div>
-        <div class="traceContent">int i = 0;
+        <ul class="breadcrumb">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Java</a></li>
+            <li><a href="#">Player</a></li>
+            <li>Player.java</li>
+        </ul>
+        <div class="traceBody">
+            <div class="lineNumbers">
+                1<br>
+                2<br>
+                3<br>
+                4<br>
+                50<br>
+                51<br>
+                52<br>
+            </div>
+            <div class="traceTriangles">
+                <br>
+                <i class="bi bi-chevron-down"></i><br>
+                <br>
+                <br>
+                <i class="bi bi-chevron-down"></i><br>
+                <br>
+                <br>
+            </div>
+            <div class="traceContent">int i = 0;
 <span class="keyword">if</span> <span class="parenthesis">(</span>i == 0<span class="parenthesis">)</span> <span class="brace">{</span>
     i = 1;
 <span class="brace">}</span>
 <span class="keyword">for</span> <span class="parenthesis">(</span>i = 0; i < 10; i++<span class="parenthesis">)</span> <span class="brace">{</span>
     System.out.println(i);
 <span class="brace">}</span></div>
+        </div>
     </div>
 
     <div id="inspector">
