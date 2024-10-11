@@ -13,7 +13,7 @@ ul.breadcrumb li {
 ul.breadcrumb li+li:before {
     padding: 8px;
     color: #ddd;
-    content: "/";
+    content: "/\00a0";
 }
 
 ul.breadcrumb li a {
