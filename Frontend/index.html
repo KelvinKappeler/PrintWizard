@@ -64,12 +64,7 @@
 
 <main>
     <div class="trace">
-        <ul class="breadcrumb">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Java</a></li>
-            <li><a href="#">Player</a></li>
-            <li>Player.java</li>
-        </ul>
+        <ul class="breadcrumb"></ul>
         <div class="traceBody">
             <div class="lineNumbers">
                 1<br>
@@ -89,13 +84,13 @@
                 <br>
                 <br>
             </div>
-            <div class="traceContent">int i = 0;
+            <div class="traceContent"><!--int i = 0;
 <span class="keyword">if</span> <span class="parenthesis">(</span>i == 0<span class="parenthesis">)</span> <span class="brace">{</span>
     i = 1;
 <span class="brace">}</span>
 <span class="keyword">for</span> <span class="parenthesis">(</span>i = 0; i < 10; i++<span class="parenthesis">)</span> <span class="brace">{</span>
     System.out.println(i);
-<span class="brace">}</span></div>
+<span class="brace">}</span>--></div>
         </div>
     </div>
 
@@ -223,7 +218,9 @@
         openInspectorTab('objectInspector');
     };
 </script>
+<script src="src/js/def.js"></script>
 <script src="src/js/triangle.js"></script>
+<script src="src/js/breadcrumb.js"></script>
 <!--<script type="module" src="displayTrace"></script>!-->
 </body>
 
