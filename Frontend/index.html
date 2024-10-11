@@ -66,7 +66,7 @@
     <div class="trace">
         <ul class="breadcrumb"></ul>
         <div class="traceBody">
-            <div class="lineNumbers">
+            <div class="lineNumbers"><!--
                 1<br>
                 2<br>
                 3<br>
@@ -74,7 +74,7 @@
                 50<br>
                 51<br>
                 52<br>
-            </div>
+            --></div>
             <div class="traceTriangles">
                 <br>
                 <i class="bi bi-chevron-down"></i><br>
@@ -214,13 +214,15 @@
         activeButton.classList.add("active");
     }
 
-    window.onload = function() {
+    window.addEventListener('load', function() {
         openInspectorTab('objectInspector');
-    };
+    });
+
 </script>
-<script src="src/js/def.js"></script>
-<script src="src/js/triangle.js"></script>
-<script src="src/js/breadcrumb.js"></script>
+<script type="module" src="src/js/def.js"></script>
+<script type="module" src="src/js/triangle.js"></script>
+<script type="module" src="src/js/breadcrumb.js"></script>
+<script type="module" src="src/js/trace.js"></script>
 <!--<script type="module" src="displayTrace"></script>!-->
 </body>
 
