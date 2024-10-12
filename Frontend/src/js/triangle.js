@@ -1,19 +1,28 @@
-function toggleTriangle(item) {
-    const iconFold = "bi-chevron-down";
-    const iconExpanded = "bi-chevron-right";
+import { Parents } from "./def.js";
 
-    if (item.classList.contains(iconFold)) {
-        item.classList.remove(iconFold);
-        item.classList.add(iconExpanded);
+const iconFold = "bi-chevron-down";
+const iconExpanded = "bi-chevron-right";
+const closeBracket = "...}";
+
+export function toggleTriangle(triangle, header, child) {
+    if (triangle.classList.contains(iconFold)) {
+        triangle.classList.remove(iconFold);
+        triangle.classList.add(iconExpanded);
+
+        child.lineNumbers.classList.add('hidden');
+        child.triangles.classList.add('hidden');
+        child.traceContent.classList.add('hidden');
+
+        header.textContent += closeBracket;
     }
     else {
-        item.classList.remove(iconExpanded);
-        item.classList.add(iconFold);
+        triangle.classList.remove(iconExpanded);
+        triangle.classList.add(iconFold);
+
+        child.lineNumbers.classList.remove('hidden')
+        child.triangles.classList.remove('hidden');
+        child.traceContent.classList.remove('hidden');
+
+        header.textContent = header.textContent.slice(0, closeBracket.length * -1);
     }
 }
-
-document.querySelectorAll('.traceTriangles i').forEach(item => {
-    item.addEventListener('click', event => {
-        toggleTriangle(item);
-    })
-})

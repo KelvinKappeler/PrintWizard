@@ -5,7 +5,7 @@
     overflow-y: auto;
     font-size: 18px;
     display: flex;
-    line-height: 1;
+    line-height: 1.25;
 }
 
 .trace {
@@ -16,6 +16,8 @@
     text-align: right;
     padding-right: 10px;
     color: #858585;
+    user-select: none;
+    min-width: 20px;
 }
 
 .traceTriangles {
@@ -23,6 +25,7 @@
     padding-right: 10px;
     padding-left: 10px;
     color: #858585;
+    user-select: none;
 }
 
 .traceTriangles i:hover {
@@ -32,6 +35,10 @@
 .traceContent {
     padding-left: 10px;
     white-space: pre;
+}
+
+.hidden {
+    display: none;
 }
 
 .traceContent .keyword {
