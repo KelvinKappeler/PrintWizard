@@ -1,132 +1,138 @@
-import {FunctionTrace, LoopIteration, LoopTrace, Parents, Statement} from './def.js';
-import {toggleTriangle} from "./triangle.js";
+import {createTriangle, foldTriangle, toggleTriangle} from "./triangle.js";
+import {FunctionTrace, LoopIteration, LoopTrace, Statement, ConditionalTrace} from "./def.js";
 
-const lineNumbersAreaSelector = '.lineNumbers';
-const trianglesAreaSelector = '.traceTriangles';
-const traceContentAreaSelector = '.traceContent';
+export class TraceBlock {
+    static lineNumbersArea = document.querySelector('.lineNumbers');
+    static trianglesArea = document.querySelector('.traceTriangles');
+    static traceContentArea = document.querySelector('.traceContent');
 
-export class TraceArea {
-    constructor(lineNumbersArea, trianglesArea, traceContentArea) {
-        this.lineNumbersArea = new LineNumbersArea(lineNumbersArea);
-        this.trianglesArea = new TrianglesArea(trianglesArea);
-        this.traceContentArea = new TraceContentArea(traceContentArea);
-        this.initialParent = new Parents(this.lineNumbersArea.lineNumbers, this.trianglesArea.triangles, this.traceContentArea.lineContent);
+    constructor(parentTraceBlock = null, isHidden = false) {
+        this.parentTraceBlock = parentTraceBlock;
+        this.parentLineNumbersDiv = parentTraceBlock ? parentTraceBlock.lineNumbersDiv : TraceBlock.lineNumbersArea;
+        this.parentTrianglesDiv = parentTraceBlock ? parentTraceBlock.trianglesDiv : TraceBlock.trianglesArea;
+        this.parentTraceContentDiv = parentTraceBlock ? parentTraceBlock.traceContentDiv : TraceBlock.traceContentArea;
+        this.contentTrace = [];
+        this.depth = parentTraceBlock ? parentTraceBlock.depth + 1 : 0;
+        this.isHidden = isHidden;
+        this.headerLine = null;
+
+        this.createElements();
     }
 
-    addLine(lineNumber, content, parents, child = null) {
-        let newParents = this.initialParent;
-        if (parents) {
-            newParents = parents;
-        }
-        this.lineNumbersArea.addLine(lineNumber, newParents.lineNumbers);
-        this.traceContentArea.addContent(content, newParents.traceContent);
-        this.trianglesArea.addTriangle(newParents, child);
+    setHeaderLine(headerLine) {
+        this.headerLine = headerLine;
     }
 
-    createParents(hiddenByDefault = false) {
-        //Line Numbers
-        const lineNumbersDiv = document.createElement('div');
-        lineNumbersDiv.classList.add('lineNumberBlock');
+    createElements() {
+        this.lineNumbersDiv = document.createElement('div');
+        this.lineNumbersDiv.classList.add('lineNumberBlock');
 
-        //Triangles
-        const trianglesDiv = document.createElement('div');
-        trianglesDiv.classList.add('trianglesBlock');
+        this.trianglesDiv = document.createElement('div');
+        this.trianglesDiv.classList.add('trianglesBlock');
 
-        //Trace
-        const traceDiv = document.createElement('div');
-        traceDiv.classList.add('codeBlock');
+        this.traceContentDiv = document.createElement('div');
+        this.traceContentDiv.classList.add('codeBlocks');
 
-        if (hiddenByDefault) {
-            lineNumbersDiv.classList.add('hidden');
-            trianglesDiv.classList.add('hidden');
-            traceDiv.classList.add('hidden');
+        if (this.isHidden) {
+            this.lineNumbersDiv.classList.add('hidden');
+            this.trianglesDiv.classList.add('hidden');
+            this.traceContentDiv.classList.add('hidden');
         }
-
-        return new Parents(lineNumbersDiv, trianglesDiv, traceDiv);
     }
 
-    addParents(baseParents, newParents) {
-        if (!baseParents) {
-            baseParents = this.initialParent;
-        }
+    show() {
+        this.headerLine.show(this.isHidden);
+        this.parentLineNumbersDiv.appendChild(this.lineNumbersDiv);
+        this.parentTrianglesDiv.appendChild(this.trianglesDiv);
+        this.parentTraceContentDiv.appendChild(this.traceContentDiv);
+    }
 
-        baseParents.lineNumbers.appendChild(newParents.lineNumbers);
-        baseParents.triangles.appendChild(newParents.triangles);
-        baseParents.traceContent.appendChild(newParents.traceContent);
+    addTraceLine(traceLine) {
+        this.contentTrace.push(traceLine);
+        traceLine.show();
     }
 }
 
-export class LineNumbersArea {
-    constructor(selector) {
-        this.lineNumbers = document.querySelector(selector);
+export class TraceLine {
+    static space = "  ";
+
+    constructor(lineNumber, content, parentTraceBlock = null, isEndOfBlock = false) {
+        this.parentTraceBlock = parentTraceBlock;
+        this.lineNumber = lineNumber;
+        this.content = content;
+        this.isEndOfBlock = isEndOfBlock;
+
+        this.numberDiv = this.parentTraceBlock ? this.parentTraceBlock.lineNumbersDiv : TraceBlock.lineNumbersArea;
+        this.trianglesDiv = this.parentTraceBlock ? this.parentTraceBlock.trianglesDiv : TraceBlock.trianglesArea;
+        this.contentDiv = this.parentTraceBlock ? this.parentTraceBlock.traceContentDiv : TraceBlock.traceContentArea;
     }
 
-    addLine(lineNumber, parent) {
-        parent.appendChild(document.createTextNode(lineNumber));
-        parent.appendChild(document.createElement('br'));
+    show() {
+        this.numberDiv.appendChild(document.createTextNode(this.lineNumber));
+        this.numberDiv.appendChild(document.createElement('br'));
+
+        const depthModifier = this.isEndOfBlock ? 0 : 1;
+        let textNode = document.createTextNode(TraceLine.space.repeat(this.parentTraceBlock ? this.parentTraceBlock.depth + depthModifier : 0) + this.content);
+        this.contentDiv.appendChild(textNode);
+        this.contentDiv.appendChild(document.createElement('br'));
+        this.contentNode = textNode;
+
+        this.trianglesDiv.appendChild(document.createElement('br'));
     }
 }
 
-export class TrianglesArea {
-    constructor(selector) {
-        this.triangles = document.querySelector(selector);
+export class HeaderTraceLine extends TraceLine {
+    constructor(lineNumber, content, childTraceBlock, parentTraceBlock = null) {
+        super(lineNumber, content, parentTraceBlock);
+        this.childTraceBlock = childTraceBlock;
     }
 
-    addTriangle(parents, child) {
-        if (child) {
-            let triangle = document.createElement('i');
-            triangle.classList.add('bi');
-            triangle.classList.add('bi-chevron-down');
-            let header = parents.traceContent.lastChild.previousSibling;
-            if (child.lineNumbers.classList.contains('hidden')) {
-                toggleTriangle(triangle, header, child);
-            }
-            triangle.addEventListener('click', () => {
-                toggleTriangle(triangle, header, child);
-            })
-            parents.triangles.appendChild(triangle);
+    show(isFolded = false) {
+        let triangle = createTriangle();
+        this.trianglesDiv.appendChild(triangle);
+        triangle.addEventListener('click', () => {
+            toggleTriangle(triangle, this);
+        });
+        super.show();
+        if (isFolded) {
+            foldTriangle(triangle, this);
         }
-
-        parents.triangles.appendChild(document.createElement('br'));
     }
 
-}
-
-export class TraceContentArea {
-    constructor(selector) {
-        this.lineContent = document.querySelector(selector)
-    }
-
-    addContent(lineContent, parent) {
-        parent.appendChild(document.createTextNode(lineContent))
-        parent.appendChild(document.createElement('br'))
+    setContent(content) {
+        this.content = content;
+        this.contentNode.textContent = TraceLine.space.repeat(this.parentTraceBlock ? this.parentTraceBlock.depth + 1: 0) + content;
     }
 }
 
 window.addEventListener('load', function() {
-    let testLoop = new LoopTrace(12, "for(int j = 0; j++; j<3)", [
+    let testLoop = new LoopTrace(12, "int j = 0; j++; j<3", [
         new LoopIteration(13, [
             new Statement(14, "int x = j", []),
             new Statement(15, "System.out.println(x)", [])
-        ], "for(j:0 < 3)"),
+        ], "j:0 < 3"),
         new LoopIteration(13, [
             new Statement(14, "int x = j", []),
             new Statement(15, "System.out.println(x)", [])
-        ],  "for(j:1 < 3)"),
+        ],  "j:1 < 3"),
         new LoopIteration(13, [
             new Statement(14, "int x = j", []),
             new Statement(15, "System.out.println(x)", [])
-        ],  "for(j:2 < 3)"),
-        new LoopIteration(13, [],  "for(j:3 < 3)")
+        ],  "j:2 < 3"),
+        new LoopIteration(13, [],  "j:3 < 3")
     ])
+
     let statements = [
         new Statement(2, "System.out.println(\"test\")", []),
         new FunctionTrace(9, [
             new Statement(10, "int i = 0;", []),
             new Statement(11, "i++;", []),
             testLoop
-        ], "testFunction", null, null),
+        ], "testFunction", [], null),
+        new ConditionalTrace(16, [
+            new Statement(17, "System.out.println(\"Hello World!\");", [])
+        ], "i == 0")
     ];
-    let ft2 = new FunctionTrace(1, statements,  "main", null, null);
-    ft2.show(new TraceArea(lineNumbersAreaSelector, trianglesAreaSelector, traceContentAreaSelector));
+    let ft2 = new FunctionTrace(1, statements, "main", [], null);
+    ft2.show(null);
 });

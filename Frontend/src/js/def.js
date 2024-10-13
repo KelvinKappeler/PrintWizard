@@ -1,10 +1,4 @@
-export class Parents {
-    constructor(lineNumbers, triangles, traceContent) {
-        this.lineNumbers = lineNumbers;
-        this.triangles = triangles;
-        this.traceContent = traceContent;
-    }
-}
+import {HeaderTraceLine, TraceBlock, TraceLine} from "./trace.js";
 
 class TraceElement {
     constructor(lineNumber, content) {
@@ -12,7 +6,7 @@ class TraceElement {
         this.content = content;
     }
 
-    show(traceArea, parents = null, depth = 0) {}
+    show(parentTraceBlock) {}
 }
 
 export class Statement extends TraceElement {
@@ -21,8 +15,8 @@ export class Statement extends TraceElement {
         this.objects = objects;
     }
 
-    show(traceArea, parents = null, depth = 0) {
-        traceArea.addLine(this.lineNumber, "  ".repeat(depth) + this.content, parents);
+    show(parentTraceBlock) {
+        parentTraceBlock.addTraceLine(new TraceLine(this.lineNumber, this.content, parentTraceBlock));
     }
 }
 
@@ -34,16 +28,17 @@ export class FunctionTrace extends TraceElement {
         this.returnVal = returnVal;
     }
 
-    show(traceArea, parents = null, depth = 0) {
-        const child = traceArea.createParents();
-        traceArea.addLine(this.lineNumber, "  ".repeat(depth) + this.name + " {", parents, child);
-        traceArea.addParents(parents, child);
+    show(parentTraceBlock) {
+        let traceBlock = new TraceBlock(parentTraceBlock, false);
+        let headerLine = new HeaderTraceLine(this.lineNumber, this.name + "(" + this.args.join(", ") + ") {", traceBlock, parentTraceBlock);
+        traceBlock.setHeaderLine(headerLine);
+        traceBlock.show();
 
-        for (let statement of this.content) {
-            statement.show(traceArea, child, depth + 1);
+        for (let traceElem of this.content) {
+            traceElem.show(traceBlock);
         }
 
-        traceArea.addLine("-", "  ".repeat(depth) + "}", child);
+        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
     }
 }
 
@@ -53,18 +48,18 @@ export class LoopTrace extends TraceElement {
         this.iterations = iterations;
     }
 
-    show(traceArea, parents, depth = 0) {
-        const child = traceArea.createParents();
-        traceArea.addLine(this.lineNumber, "  ".repeat(depth) + this.content + " {", parents, child);
-        traceArea.addParents(parents, child)
+    show(parentTraceBlock) {
+        let traceBlock = new TraceBlock(parentTraceBlock, false);
+        let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.content + ") {", traceBlock, parentTraceBlock);
+        traceBlock.setHeaderLine(headerLine);
+        traceBlock.show();
 
-        for (let iteration of this.iterations) {
-            iteration.show(traceArea, child, depth + 1);
+        for (let iter of this.iterations) {
+            iter.show(traceBlock);
         }
 
-        traceArea.addLine("-", "  ".repeat(depth) + "}", child);
+        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
     }
-
 }
 
 export class LoopIteration extends TraceElement {
@@ -73,19 +68,36 @@ export class LoopIteration extends TraceElement {
         this.currentCondition = currentCondition;
     }
 
-    show(traceArea, parents, depth = 0) {
-        const child = traceArea.createParents(true);
-        traceArea.addLine(this.lineNumber, "  ".repeat(depth) + this.currentCondition + " {", parents, child);
-        traceArea.addParents(parents, child);
+    show(parentTraceBlock) {
+        let traceBlock = new TraceBlock(parentTraceBlock, true);
+        let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
+        traceBlock.setHeaderLine(headerLine);
+        traceBlock.show();
 
-        for (let statement of this.content) {
-            statement.show(traceArea, child, depth + 1);
+        for (let traceElem of this.content) {
+            traceElem.show(traceBlock);
         }
 
-        traceArea.addLine("-", "  ".repeat(depth) + "}", child);
+        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
     }
 }
 
 export class ConditionalTrace extends TraceElement {
+    constructor(lineNumber, content, currentCondition) {
+        super(lineNumber, content);
+        this.currentCondition = currentCondition;
+    }
 
+    show(parentTraceBlock) {
+        let traceBlock = new TraceBlock(parentTraceBlock, false);
+        let headerLine = new HeaderTraceLine(this.lineNumber, "if (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
+        traceBlock.setHeaderLine(headerLine);
+        traceBlock.show();
+
+        for (let traceElem of this.content) {
+            traceElem.show(traceBlock);
+        }
+
+        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
+    }
 }
