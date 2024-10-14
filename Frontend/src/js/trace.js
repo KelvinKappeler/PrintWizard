@@ -1,5 +1,5 @@
 import {createTriangle, foldTriangle, toggleTriangle} from "./triangle.js";
-import {FunctionTrace, LoopIteration, LoopTrace, Statement, ConditionalTrace} from "./def.js";
+import {FunctionTrace, LoopIteration, LoopTrace, StepTrace, ConditionalTrace} from "./def.js";
 
 export class TraceBlock {
     static lineNumbersArea = document.querySelector('.lineNumbers');
@@ -108,29 +108,29 @@ export class HeaderTraceLine extends TraceLine {
 window.addEventListener('load', function() {
     let testLoop = new LoopTrace(12, "int j = 0; j++; j<3", [
         new LoopIteration(13, [
-            new Statement(14, "int x = j", []),
-            new Statement(15, "System.out.println(x)", [])
+            new StepTrace(14, "int x = j", []),
+            new StepTrace(15, "System.out.println(x)", [])
         ], "j:0 < 3"),
         new LoopIteration(13, [
-            new Statement(14, "int x = j", []),
-            new Statement(15, "System.out.println(x)", [])
+            new StepTrace(14, "int x = j", []),
+            new StepTrace(15, "System.out.println(x)", [])
         ],  "j:1 < 3"),
         new LoopIteration(13, [
-            new Statement(14, "int x = j", []),
-            new Statement(15, "System.out.println(x)", [])
+            new StepTrace(14, "int x = j", []),
+            new StepTrace(15, "System.out.println(x)", [])
         ],  "j:2 < 3"),
         new LoopIteration(13, [],  "j:3 < 3")
     ])
 
     let statements = [
-        new Statement(2, "System.out.println(\"test\")", []),
+        new StepTrace(2, "System.out.println(\"test\")", []),
         new FunctionTrace(9, [
-            new Statement(10, "int i = 0;", []),
-            new Statement(11, "i++;", []),
+            new StepTrace(10, "int i = 0;", []),
+            new StepTrace(11, "i++;", []),
             testLoop
         ], "testFunction", [], null),
         new ConditionalTrace(16, [
-            new Statement(17, "System.out.println(\"Hello World!\");", [])
+            new StepTrace(17, "System.out.println(\"Hello World!\");", [])
         ], "i == 0")
     ];
     let ft2 = new FunctionTrace(1, statements, "main", [], null);

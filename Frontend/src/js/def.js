@@ -9,8 +9,8 @@ class TraceElement {
     show(parentTraceBlock) {}
 }
 
-export class Statement extends TraceElement {
-    constructor(lineNumber, content, objects) {
+export class StepTrace extends TraceElement {
+    constructor(lineNumber = 0, content = "", objects = []) {
         super(lineNumber, content);
         this.objects = objects;
     }
@@ -20,8 +20,30 @@ export class Statement extends TraceElement {
     }
 }
 
+export class InstantiationTrace extends TraceElement {
+    constructor(lineNumber, content, name, type, args) {
+        super(lineNumber, content);
+        this.name = name;
+        this.args = args;
+    }
+}
+
+export class StatementTrace extends TraceElement {
+    constructor(id, lineNumber = 0, content = []) {
+        super(lineNumber, content);
+        this.id = id;
+    }
+}
+
+export class SubStatementTrace extends TraceElement {
+    constructor(id, lineNumber = 0, content = []) {
+        super(lineNumber, content);
+        this.id = id;
+    }
+}
+
 export class FunctionTrace extends TraceElement {
-    constructor(lineNumber, content, name, args, returnVal) {
+    constructor(lineNumber = 0, content = [], name = "", args = [], returnVal = null) {
         super(lineNumber, content);
         this.name = name;
         this.args = args;
