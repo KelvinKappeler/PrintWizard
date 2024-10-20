@@ -33,12 +33,28 @@ export class StatementTrace extends TraceElement {
         super(lineNumber, content);
         this.id = id;
     }
+
+    show(parentTraceBlock) {
+
+        this.content[0].show(parentTraceBlock);
+        /*for (let traceElem of this.content) {
+            traceElem.show(parentTraceBlock);
+        }*/
+    }
 }
 
 export class SubStatementTrace extends TraceElement {
     constructor(id, lineNumber = 0, content = []) {
         super(lineNumber, content);
         this.id = id;
+    }
+
+    show(parentTraceBlock) {
+        this.content[0].show(parentTraceBlock);
+        /*
+        for (let traceElem of this.content) {
+            traceElem.show(parentTraceBlock);
+        }*/
     }
 }
 

@@ -19,23 +19,24 @@ class SyntaxNode {
         this.expression = syntaxNode.expression ? new Expression(syntaxNode.expression) : undefined;
         this.children = syntaxNode.children;
         this.kind = syntaxNode.kind;
-        this.prefix = syntaxNode.prefix ? new Ix(syntaxNode.prefix) : undefined;
+        this.prefix = syntaxNode.prefix ? new Prefix(syntaxNode.prefix) : undefined;
         this.startLine = syntaxNode.startLine;
-        this.suffix = syntaxNode.suffix ? new Ix(syntaxNode.suffix) : undefined;
+        this.suffix = syntaxNode.suffix ? new Suffix(syntaxNode.suffix) : undefined;
         this.sourceFile = syntaxNode.sourceFile ? new SourceFile(syntaxNode.sourceFile) : undefined;
+    }
+
+    getNodeText() {
+        if (this.expression == null) {
+            return "";
+        }
+        return this.prefix.text + this.expression.tokens.map(token => token.text).join("") + this.suffix.text;
     }
 }
 
 class Expression {
     constructor(expression) {
-        this.tokens = new Tokens(expression.tokens);
+        this.tokens = expression.tokens.map(token => new Token(token));
         this.kind = expression.kind;
-    }
-}
-
-class Tokens {
-    constructor(tokens) {
-        this.tokens = tokens.map(token => new Token(token));
     }
 }
 
@@ -46,10 +47,17 @@ class Token {
     }
 }
 
-class Ix {
-    constructor(ix) {
-        this.kind = ix.kind;
-        this.text = ix.text;
+class Prefix {
+    constructor(prefix) {
+        this.kind = prefix.kind;
+        this.text = prefix.text.trimStart();
+    }
+}
+
+class Suffix {
+    constructor(suffix) {
+        this.kind = suffix.kind
+        this.text = suffix.text.trimEnd();
     }
 }
 

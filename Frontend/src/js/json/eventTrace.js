@@ -1,0 +1,84 @@
+export class Trace {
+    constructor(trace) {
+        this.trace = trace.trace.map(entry => {
+            if (entry.type === 'GroupEvent') {
+                return new Event(entry);
+            } else {
+                return new Step(entry);
+            }
+        });
+    }
+
+    sliceFirst() {
+        return new Trace({ trace: this.trace.slice(1) });
+    }
+}
+
+export class Event {
+    constructor(event) {
+        this.eventId = event.eventId;
+        this.eventType = event.eventType;
+        this.type = event.type;
+        this.pos = event.pos;
+        this.kind = event.kind ? new Kind(event.kind) : undefined;
+    }
+}
+
+class Kind {
+    constructor(kind) {
+        this.type = kind.type;
+        this.functionName = kind.functionName;
+    }
+}
+
+export class Step {
+    constructor(step) {
+        this.stepId = step.stepId;
+        this.nodeKey = step.nodeKey;
+        this.argsValues = step.argsValues ? step.argsValues.map(arg => new ArgValue(arg)) : [];
+        this.type = step.type;
+        this.kind = step.kind;
+        this.result = step.result ? new Result(step.result) : undefined;
+        this.assigns = step.assigns ? step.assigns.map(assign => new Assigns(assign)) : undefined;
+    }
+}
+
+class ArgValue {
+    constructor(arg) {
+        this.value = arg.value;
+        this.dataType = arg.dataType;
+    }
+}
+
+class Result {
+    constructor(result) {
+        this.pointer = result.pointer;
+        this.className = result.className ? new ClassName(result.className) : undefined;
+        this.version = result.version;
+        this.dataType = result.dataType;
+        this.value = result.value;
+    }
+}
+
+class Assigns {
+    constructor(assign) {
+        this.value = assign.value ? new Result(assign.value) : undefined;
+        this.identifier = assign.identifier ? new Identifier(assign.identifier) : undefined;
+        this.dataType = assign.dataType;
+    }
+}
+
+class ClassName {
+    constructor(className) {
+        this.className = className.className;
+        this.packageName = className.packageName;
+    }
+}
+
+class Identifier {
+    constructor(identifier) {
+        this.name = identifier.name;
+        this.parent = identifier.parent;
+        this.dataType = identifier.dataType;
+    }
+}

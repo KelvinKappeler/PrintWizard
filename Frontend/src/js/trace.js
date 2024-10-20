@@ -105,34 +105,3 @@ export class HeaderTraceLine extends TraceLine {
     }
 }
 
-window.addEventListener('load', function() {
-    let testLoop = new LoopTrace(12, "int j = 0; j++; j<3", [
-        new LoopIteration(13, [
-            new StepTrace(14, "int x = j", []),
-            new StepTrace(15, "System.out.println(x)", [])
-        ], "j:0 < 3"),
-        new LoopIteration(13, [
-            new StepTrace(14, "int x = j", []),
-            new StepTrace(15, "System.out.println(x)", [])
-        ],  "j:1 < 3"),
-        new LoopIteration(13, [
-            new StepTrace(14, "int x = j", []),
-            new StepTrace(15, "System.out.println(x)", [])
-        ],  "j:2 < 3"),
-        new LoopIteration(13, [],  "j:3 < 3")
-    ])
-
-    let statements = [
-        new StepTrace(2, "System.out.println(\"test\")", []),
-        new FunctionTrace(9, [
-            new StepTrace(10, "int i = 0;", []),
-            new StepTrace(11, "i++;", []),
-            testLoop
-        ], "testFunction", [], null),
-        new ConditionalTrace(16, [
-            new StepTrace(17, "System.out.println(\"Hello World!\");", [])
-        ], "i == 0")
-    ];
-    let ft2 = new FunctionTrace(1, statements, "main", [], null);
-    ft2.show(null);
-});
