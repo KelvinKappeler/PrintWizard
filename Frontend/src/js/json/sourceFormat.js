@@ -25,11 +25,20 @@ class SyntaxNode {
         this.sourceFile = syntaxNode.sourceFile ? new SourceFile(syntaxNode.sourceFile) : undefined;
     }
 
-    getNodeText() {
+    getEntireText() {
         if (this.expression == null) {
             return "";
         }
-        return this.prefix.text + this.expression.tokens.map(token => token.text).join("") + this.suffix.text;
+
+        return this.prefix.text + this.getExpressionText() + this.suffix.text;
+    }
+
+    getExpressionText() {
+        if (this.expression == null) {
+            return "";
+        }
+
+        return this.expression.tokens.map(token => token.text).join("");
     }
 }
 

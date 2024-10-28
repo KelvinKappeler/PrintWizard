@@ -1,92 +1,71 @@
-import {HeaderTraceLine, TraceBlock, TraceLine} from "./trace.js";
-
 class TraceElement {
     constructor(lineNumber, content) {
         this.lineNumber = lineNumber;
         this.content = content;
     }
 
-    show(parentTraceBlock) {}
-}
-
-export class StepTrace extends TraceElement {
-    constructor(lineNumber = 0, content = "", objects = []) {
-        super(lineNumber, content);
-        this.objects = objects;
-    }
-
-    show(parentTraceBlock) {
-        parentTraceBlock.addTraceLine(new TraceLine(this.lineNumber, this.content, parentTraceBlock));
-    }
-}
-
-export class InstantiationTrace extends TraceElement {
-    constructor(lineNumber, content, name, type, args) {
-        super(lineNumber, content);
-        this.name = name;
-        this.args = args;
-    }
+    append(trace) {}
 }
 
 export class StatementTrace extends TraceElement {
-    constructor(id, lineNumber = 0, content = []) {
+    constructor(lineNumber = 0, content = [], line = "") {
         super(lineNumber, content);
-        this.id = id;
+        this.line = line;
     }
 
-    show(parentTraceBlock) {
+    append(trace) {
+        trace.createBlock(this.lineNumber, this.line, true);
 
-        this.content[0].show(parentTraceBlock);
-        /*for (let traceElem of this.content) {
-            traceElem.show(parentTraceBlock);
-        }*/
+        for (let traceElem of this.content) {
+            traceElem.append(trace);
+        }
+
+        trace.closeBlock();
     }
 }
 
-export class SubStatementTrace extends TraceElement {
-    constructor(id, lineNumber = 0, content = []) {
+export class ExpressionTrace extends TraceElement {
+    constructor(lineNumber = 0, content = "", result = undefined, assigns = undefined) {
         super(lineNumber, content);
-        this.id = id;
+        this.result = result;
+        this.assigns = assigns;
     }
 
-    show(parentTraceBlock) {
-        this.content[0].show(parentTraceBlock);
-        /*
-        for (let traceElem of this.content) {
-            traceElem.show(parentTraceBlock);
-        }*/
+    append(trace) {
+        trace.addLine(this.lineNumber, this.content);
     }
 }
 
 export class FunctionTrace extends TraceElement {
-    constructor(lineNumber = 0, content = [], name = "", args = [], returnVal = null) {
+    constructor(lineNumber = "", content = [], name = "", args = [], returnVal = null) {
         super(lineNumber, content);
         this.name = name;
         this.args = args;
         this.returnVal = returnVal;
     }
 
-    show(parentTraceBlock) {
-        let traceBlock = new TraceBlock(parentTraceBlock, false);
-        let headerLine = new HeaderTraceLine(this.lineNumber, this.name + "(" + this.args.join(", ") + ") {", traceBlock, parentTraceBlock);
-        traceBlock.setHeaderLine(headerLine);
-        traceBlock.show();
+    append(trace) {
+        const returnVal = this.returnVal ? this.returnVal.value : "";
+
+        const isHidden = trace.blockStack.length > 1;
+        trace.createBlock(this.lineNumber, this.name + "(" + this.args.map(arg => arg.value).join(", ") + ")" + "---->" + returnVal, isHidden);
 
         for (let traceElem of this.content) {
-            traceElem.show(traceBlock);
+            traceElem.append(trace);
         }
 
-        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
+        trace.closeBlock();
     }
 }
 
+/*
 export class LoopTrace extends TraceElement {
     constructor(lineNumber, content, iterations) {
         super(lineNumber, content);
         this.iterations = iterations;
     }
 
-    show(parentTraceBlock) {
+    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
         let traceBlock = new TraceBlock(parentTraceBlock, false);
         let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.content + ") {", traceBlock, parentTraceBlock);
         traceBlock.setHeaderLine(headerLine);
@@ -106,7 +85,7 @@ export class LoopIteration extends TraceElement {
         this.currentCondition = currentCondition;
     }
 
-    show(parentTraceBlock) {
+    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
         let traceBlock = new TraceBlock(parentTraceBlock, true);
         let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
         traceBlock.setHeaderLine(headerLine);
@@ -126,7 +105,7 @@ export class ConditionalTrace extends TraceElement {
         this.currentCondition = currentCondition;
     }
 
-    show(parentTraceBlock) {
+    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
         let traceBlock = new TraceBlock(parentTraceBlock, false);
         let headerLine = new HeaderTraceLine(this.lineNumber, "if (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
         traceBlock.setHeaderLine(headerLine);
@@ -139,3 +118,4 @@ export class ConditionalTrace extends TraceElement {
         traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
     }
 }
+*/

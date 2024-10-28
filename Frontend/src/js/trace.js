@@ -1,107 +1,93 @@
 import {createTriangle, foldTriangle, toggleTriangle} from "./triangle.js";
-import {FunctionTrace, LoopIteration, LoopTrace, StepTrace, ConditionalTrace} from "./def.js";
 
-export class TraceBlock {
+export class Trace {
     static lineNumbersArea = document.querySelector('.lineNumbers');
     static trianglesArea = document.querySelector('.traceTriangles');
     static traceContentArea = document.querySelector('.traceContent');
-
-    constructor(parentTraceBlock = null, isHidden = false) {
-        this.parentTraceBlock = parentTraceBlock;
-        this.parentLineNumbersDiv = parentTraceBlock ? parentTraceBlock.lineNumbersDiv : TraceBlock.lineNumbersArea;
-        this.parentTrianglesDiv = parentTraceBlock ? parentTraceBlock.trianglesDiv : TraceBlock.trianglesArea;
-        this.parentTraceContentDiv = parentTraceBlock ? parentTraceBlock.traceContentDiv : TraceBlock.traceContentArea;
-        this.contentTrace = [];
-        this.depth = parentTraceBlock ? parentTraceBlock.depth + 1 : 0;
-        this.isHidden = isHidden;
-        this.headerLine = null;
-
-        this.createElements();
-    }
-
-    setHeaderLine(headerLine) {
-        this.headerLine = headerLine;
-    }
-
-    createElements() {
-        this.lineNumbersDiv = document.createElement('div');
-        this.lineNumbersDiv.classList.add('lineNumberBlock');
-
-        this.trianglesDiv = document.createElement('div');
-        this.trianglesDiv.classList.add('trianglesBlock');
-
-        this.traceContentDiv = document.createElement('div');
-        this.traceContentDiv.classList.add('codeBlocks');
-
-        if (this.isHidden) {
-            this.lineNumbersDiv.classList.add('hidden');
-            this.trianglesDiv.classList.add('hidden');
-            this.traceContentDiv.classList.add('hidden');
-        }
-    }
-
-    show() {
-        this.headerLine.show(this.isHidden);
-        this.parentLineNumbersDiv.appendChild(this.lineNumbersDiv);
-        this.parentTrianglesDiv.appendChild(this.trianglesDiv);
-        this.parentTraceContentDiv.appendChild(this.traceContentDiv);
-    }
-
-    addTraceLine(traceLine) {
-        this.contentTrace.push(traceLine);
-        traceLine.show();
-    }
-}
-
-export class TraceLine {
     static space = "  ";
 
-    constructor(lineNumber, content, parentTraceBlock = null, isEndOfBlock = false) {
-        this.parentTraceBlock = parentTraceBlock;
-        this.lineNumber = lineNumber;
-        this.content = content;
-        this.isEndOfBlock = isEndOfBlock;
+    constructor(treeTrace) {
+        this.treeTrace = treeTrace;
 
-        this.numberDiv = this.parentTraceBlock ? this.parentTraceBlock.lineNumbersDiv : TraceBlock.lineNumbersArea;
-        this.trianglesDiv = this.parentTraceBlock ? this.parentTraceBlock.trianglesDiv : TraceBlock.trianglesArea;
-        this.contentDiv = this.parentTraceBlock ? this.parentTraceBlock.traceContentDiv : TraceBlock.traceContentArea;
+        this.blockStack = [new StackFragment(
+            document.createDocumentFragment(),
+            document.createDocumentFragment(),
+            document.createDocumentFragment())
+        ];
+    }
+
+    getLastBlock() {
+        return this.blockStack[this.blockStack.length - 1];
     }
 
     show() {
-        this.numberDiv.appendChild(document.createTextNode(this.lineNumber));
-        this.numberDiv.appendChild(document.createElement('br'));
+        this.treeTrace.append(this);
 
-        const depthModifier = this.isEndOfBlock ? 0 : 1;
-        let textNode = document.createTextNode(TraceLine.space.repeat(this.parentTraceBlock ? this.parentTraceBlock.depth + depthModifier : 0) + this.content);
-        this.contentDiv.appendChild(textNode);
-        this.contentDiv.appendChild(document.createElement('br'));
-        this.contentNode = textNode;
-
-        this.trianglesDiv.appendChild(document.createElement('br'));
-    }
-}
-
-export class HeaderTraceLine extends TraceLine {
-    constructor(lineNumber, content, childTraceBlock, parentTraceBlock = null) {
-        super(lineNumber, content, parentTraceBlock);
-        this.childTraceBlock = childTraceBlock;
+        Trace.lineNumbersArea.appendChild(this.blockStack[0].linesNumber);
+        Trace.trianglesArea.appendChild(this.blockStack[0].triangles);
+        Trace.traceContentArea.appendChild(this.blockStack[0].traceContent);
     }
 
-    show(isFolded = false) {
-        let triangle = createTriangle();
-        this.trianglesDiv.appendChild(triangle);
-        triangle.addEventListener('click', () => {
-            toggleTriangle(triangle, this);
-        });
-        super.show();
-        if (isFolded) {
-            foldTriangle(triangle, this);
+    createBlock(lineNumber, header, isHidden) {
+        const newBlock = new StackFragment(
+            document.createElement('div'),
+            document.createElement('div'),
+            document.createElement('div')
+        );
+
+        this.addLine(lineNumber, header, newBlock, isHidden);
+
+        newBlock.linesNumber.classList.add('lineNumberBlock');
+        newBlock.triangles.classList.add('trianglesBlock');
+        newBlock.traceContent.classList.add('codeBlocks');
+
+        if (isHidden) {
+            newBlock.linesNumber.classList.add('hidden');
+            newBlock.triangles.classList.add('hidden');
+            newBlock.traceContent.classList.add('hidden');
         }
+
+        this.blockStack.push(newBlock);
     }
 
-    setContent(content) {
-        this.content = content;
-        this.contentNode.textContent = TraceLine.space.repeat(this.parentTraceBlock ? this.parentTraceBlock.depth + 1: 0) + content;
+    closeBlock() {
+        const bs = this.blockStack.pop();
+        const lastBlock = this.getLastBlock();
+        lastBlock.linesNumber.appendChild(bs.linesNumber);
+        lastBlock.triangles.appendChild(bs.triangles);
+        lastBlock.traceContent.appendChild(bs.traceContent);
+    }
+
+    addLine(lineNumber, content, newBlock = null, isNewBlockHidden = false) {
+        const lastBlock = this.getLastBlock();
+        lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber));
+        lastBlock.linesNumber.appendChild(document.createElement('br'));
+
+        //const depthModifier = this.isEndOfBlock ? 0 : 1;
+        let textNode = document.createTextNode(Trace.space.repeat(this.blockStack.length - 1) + content);
+        lastBlock.traceContent.appendChild(textNode);
+        lastBlock.traceContent.appendChild(document.createElement('br'));
+
+        if (newBlock) {
+            let triangle = createTriangle();
+            lastBlock.triangles.appendChild(triangle);
+            triangle.addEventListener('click', () => {
+                toggleTriangle(triangle, newBlock);
+            });
+
+            if (isNewBlockHidden) {
+                foldTriangle(triangle, newBlock);
+            }
+        }
+        lastBlock.triangles.appendChild(document.createElement('br'));
+
     }
 }
 
+class StackFragment {
+    constructor(linesNumber, triangles, traceContent) {
+        this.linesNumber = linesNumber;
+        this.triangles = triangles
+        this.traceContent = traceContent;
+    }
+}
