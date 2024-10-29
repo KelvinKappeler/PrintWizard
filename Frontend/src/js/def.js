@@ -46,15 +46,19 @@ export class FunctionTrace extends TraceElement {
 
     append(trace) {
         const returnVal = this.returnVal ? this.returnVal.value : "";
+        const headerText = this.name + "(" + this.args.map(arg => arg.value).join(", ") + ")" + "---->" + returnVal;
 
-        const isHidden = trace.blockStack.length > 1;
-        trace.createBlock(this.lineNumber, this.name + "(" + this.args.map(arg => arg.value).join(", ") + ")" + "---->" + returnVal, isHidden);
+        if (this.content.length === 0) {
+            trace.addLine(this.lineNumber, headerText);
+        } else {
+            trace.createBlock(this.lineNumber, headerText, trace.blockStack.length > 1);
 
-        for (let traceElem of this.content) {
-            traceElem.append(trace);
+            for (let traceElem of this.content) {
+                traceElem.append(trace);
+            }
+
+            trace.closeBlock();
         }
-
-        trace.closeBlock();
     }
 }
 
