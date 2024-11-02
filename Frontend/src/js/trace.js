@@ -28,14 +28,14 @@ export class Trace {
         Trace.traceContentArea.appendChild(this.blockStack[0].traceContent);
     }
 
-    createBlock(lineNumber, header, isHidden) {
+    createBlock(lineNumber, headerFragment, isHidden) {
         const newBlock = new StackFragment(
             document.createElement('div'),
             document.createElement('div'),
             document.createElement('div')
         );
 
-        this.addLine(lineNumber, header, newBlock, isHidden);
+        this.addLine(lineNumber, headerFragment, newBlock, isHidden);
 
         newBlock.linesNumber.classList.add('lineNumberBlock');
         newBlock.triangles.classList.add('trianglesBlock');
@@ -58,14 +58,13 @@ export class Trace {
         lastBlock.traceContent.appendChild(bs.traceContent);
     }
 
-    addLine(lineNumber, content, newBlock = null, isNewBlockHidden = false) {
+    addLine(lineNumber, contentFragment, newBlock = null, isNewBlockHidden = false) {
         const lastBlock = this.getLastBlock();
         lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber));
         lastBlock.linesNumber.appendChild(document.createElement('br'));
 
-        //const depthModifier = this.isEndOfBlock ? 0 : 1;
-        let textNode = document.createTextNode(Trace.space.repeat(this.blockStack.length - 1) + content);
-        lastBlock.traceContent.appendChild(textNode);
+        contentFragment.prepend(document.createTextNode(Trace.space.repeat(this.blockStack.length - 1)));
+        lastBlock.traceContent.appendChild(contentFragment);
         lastBlock.traceContent.appendChild(document.createElement('br'));
 
         if (newBlock) {
@@ -81,6 +80,14 @@ export class Trace {
         }
         lastBlock.triangles.appendChild(document.createElement('br'));
 
+    }
+
+    static createSpan(categories, textContent) {
+        const span = document.createElement('span');
+        span.classList.add(categories);
+        span.appendChild(document.createTextNode(textContent));
+
+        return span;
     }
 }
 

@@ -1,3 +1,5 @@
+import {Trace} from "./trace.js";
+
 class TraceElement {
     constructor(lineNumber, content) {
         this.lineNumber = lineNumber;
@@ -14,7 +16,9 @@ export class StatementTrace extends TraceElement {
     }
 
     append(trace) {
-        trace.createBlock(this.lineNumber, this.line, true);
+        const lineFragment = document.createDocumentFragment();
+        lineFragment.appendChild(document.createTextNode(this.line));
+        trace.createBlock(this.lineNumber, lineFragment, true);
 
         for (let traceElem of this.content) {
             traceElem.append(trace);
@@ -32,7 +36,9 @@ export class ExpressionTrace extends TraceElement {
     }
 
     append(trace) {
-        trace.addLine(this.lineNumber, this.content);
+        const contentFragment = document.createDocumentFragment();
+        contentFragment.appendChild(document.createTextNode(this.content));
+        trace.addLine(this.lineNumber, contentFragment);
     }
 }
 
@@ -45,16 +51,31 @@ export class FunctionTrace extends TraceElement {
     }
 
     append(trace) {
-        const returnVal = this.returnVal ? this.returnVal.value : "";
-
         const isHidden = trace.blockStack.length > 1;
-        trace.createBlock(this.lineNumber, this.name + "(" + this.args.map(arg => arg.value).join(", ") + ")" + "---->" + returnVal, isHidden);
+        trace.createBlock(this.lineNumber, this.createHeaderFragment(), isHidden);
 
         for (let traceElem of this.content) {
             traceElem.append(trace);
         }
 
         trace.closeBlock();
+    }
+
+    createHeaderFragment() {
+        const headerFragment = document.createDocumentFragment();
+
+        headerFragment.appendChild(Trace.createSpan('functionName', this.name));
+        headerFragment.appendChild(Trace.createSpan('parenthesis', '('));
+        headerFragment.appendChild(document.createTextNode(this.args.map(arg => arg.value).join(", ")));
+        headerFragment.appendChild(Trace.createSpan('parenthesis', ')'));
+
+        const returnVal = this.returnVal ? this.returnVal.value : "";
+        if (returnVal) {
+            headerFragment.appendChild(document.createTextNode(" -> "));
+            headerFragment.appendChild(Trace.createSpan('returnValue', returnVal));
+        }
+
+        return headerFragment;
     }
 }
 

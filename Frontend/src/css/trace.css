@@ -5,7 +5,7 @@
     overflow-y: auto;
     font-size: 18px;
     display: flex;
-    line-height: 1.25;
+    line-height: 1.4;
 }
 
 .trace {
@@ -41,14 +41,22 @@
     display: none;
 }
 
-.traceContent .keyword {
+.keyword {
     color: #9b68c3;
 }
 
-.traceContent .brace {
+.brace {
     color: #4a76c6;
 }
 
-.traceContent .parenthesis {
+.parenthesis {
+    color: #9c9c41;
+}
+
+.functionName {
     color: #4a76c6;
+}
+
+.returnValue {
+    border: 1px solid #af4b4b;
 }
