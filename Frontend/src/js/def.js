@@ -1,4 +1,5 @@
-import {Trace} from "./trace.js";
+import {TraceSpan, TraceSpanType} from "./trace.js";
+import {ObjectInspector} from "./inspectors/objectInspector.js";
 
 class TraceElement {
     constructor(lineNumber, content) {
@@ -38,6 +39,36 @@ export class ExpressionTrace extends TraceElement {
     append(trace) {
         const contentFragment = document.createDocumentFragment();
         contentFragment.appendChild(document.createTextNode(this.content));
+
+        if (this.result) {
+            contentFragment.appendChild(document.createTextNode(" -> "));
+            const returnValFragment = this.result.documentFragment();
+            contentFragment.appendChild(returnValFragment);
+        }
+
+        trace.addLine(this.lineNumber, contentFragment);
+    }
+}
+
+export class AssignmentExpressionTrace extends TraceElement {
+    constructor(lineNumber = 0, content = "", assigns = undefined) {
+        super(lineNumber, content);
+        this.assigns = assigns;
+    }
+
+    append(trace) {
+        const contentFragment = document.createDocumentFragment();
+        this.assigns.forEach((assign, index) => {
+            contentFragment.appendChild(document.createTextNode(
+                assign[0].dataType + " " + assign[1] + " := ")
+            );
+            contentFragment.appendChild(assign[0].documentFragment());
+
+            if (index < this.assigns.length - 1) {
+                contentFragment.appendChild(document.createTextNode(" / "));
+            }
+        });
+
         trace.addLine(this.lineNumber, contentFragment);
     }
 }
@@ -52,30 +83,100 @@ export class FunctionTrace extends TraceElement {
 
     append(trace) {
         const isHidden = trace.blockStack.length > 1;
-        trace.createBlock(this.lineNumber, this.createHeaderFragment(), isHidden);
 
-        for (let traceElem of this.content) {
-            traceElem.append(trace);
+        if (this.content.length === 0) {
+            trace.addLine(this.lineNumber, this.createHeaderFragment(), null, isHidden);
+        } else {
+            trace.createBlock(this.lineNumber, this.createHeaderFragment(), isHidden);
+
+            for (let traceElem of this.content) {
+                traceElem.append(trace);
+            }
+
+            trace.closeBlock();
         }
-
-        trace.closeBlock();
     }
 
     createHeaderFragment() {
         const headerFragment = document.createDocumentFragment();
 
-        headerFragment.appendChild(Trace.createSpan('functionName', this.name));
-        headerFragment.appendChild(Trace.createSpan('parenthesis', '('));
-        headerFragment.appendChild(document.createTextNode(this.args.map(arg => arg.value).join(", ")));
-        headerFragment.appendChild(Trace.createSpan('parenthesis', ')'));
+        headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.FunctionName, this.name));
+        headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, '('));
+        this.args.forEach((arg, index) => {
+            const fragment = arg.documentFragment(TraceSpanType.ArgsValue);
+            headerFragment.appendChild(fragment);
 
-        const returnVal = this.returnVal ? this.returnVal.value : "";
-        if (returnVal) {
+            if (index < this.args.length - 1) {
+                headerFragment.appendChild(document.createTextNode(", "));
+            }
+        });
+        headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, ')'));
+
+        if (this.returnVal) {
+            const returnValFragment = this.returnVal.documentFragment();
             headerFragment.appendChild(document.createTextNode(" -> "));
-            headerFragment.appendChild(Trace.createSpan('returnValue', returnVal));
+            headerFragment.appendChild(returnValFragment);
         }
 
         return headerFragment;
+    }
+}
+
+export class Value {
+    constructor(dataType) {
+        this.dataType = dataType;
+    }
+
+    documentFragment(traceSpanType = TraceSpanType.ReturnValue) {}
+
+    static newValue(element) {
+        if (element.dataType === 'instanceRef') {
+            return new ObjectValue(
+                element.className.className,
+                element.pointer,
+                element.value
+            );
+        } else {
+            return new PrimitiveValue(element.dataType, element.value);
+        }
+    }
+}
+
+class ObjectValue extends Value {
+    constructor(dataType = "", pointer = null, value = "") {
+        super(dataType);
+        this.pointer = pointer;
+        this.value = value;
+    }
+
+    documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
+        const df = document.createDocumentFragment();
+        const span = TraceSpan.createSpan(
+            traceSpanType,
+            this.dataType + ": $" + this.pointer
+        );
+        span.addEventListener('click', () => {
+            ObjectInspector.update(this);
+        });
+        df.appendChild(span);
+        return df;
+    }
+}
+
+class PrimitiveValue extends Value {
+    constructor(dataType = "", value = "") {
+        super(dataType);
+        this.value = value;
+    }
+
+    documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
+        const df = document.createDocumentFragment();
+        const span = TraceSpan.createSpan(
+            traceSpanType,
+            this.dataType + ": " + this.value
+        );
+        df.appendChild(span);
+        return df;
     }
 }
 

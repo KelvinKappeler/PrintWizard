@@ -81,14 +81,6 @@ export class Trace {
         lastBlock.triangles.appendChild(document.createElement('br'));
 
     }
-
-    static createSpan(categories, textContent) {
-        const span = document.createElement('span');
-        span.classList.add(categories);
-        span.appendChild(document.createTextNode(textContent));
-
-        return span;
-    }
 }
 
 class StackFragment {
@@ -96,5 +88,26 @@ class StackFragment {
         this.linesNumber = linesNumber;
         this.triangles = triangles
         this.traceContent = traceContent;
+    }
+}
+
+export class TraceSpanType {
+    static Parenthesis = new TraceSpanType("parenthesis");
+    static ReturnValue = new TraceSpanType("returnValue");
+    static FunctionName = new TraceSpanType("functionName");
+    static ArgsValue = new TraceSpanType("argsValue");
+
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+export class TraceSpan {
+    static createSpan(category, textContent) {
+        const span = document.createElement('span');
+        span.classList.add(category.name);
+        span.appendChild(document.createTextNode(textContent));
+
+        return span;
     }
 }

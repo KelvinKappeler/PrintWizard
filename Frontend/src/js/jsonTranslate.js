@@ -1,9 +1,8 @@
-import {FunctionTrace, StatementTrace, ExpressionTrace} from "./def.js";
-import {JsonData} from "./json/jsonData.js";
+import {FunctionTrace, StatementTrace, ExpressionTrace, AssignmentExpressionTrace} from "./def.js";
 import {Event, Step} from "./json/eventTrace.js";
-import {Trace} from "./trace.js";
+import {Value} from "./def.js";
 
-function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
+export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
     function rec(actualTrace, sourceFormat, objectData, dataStack) {
         if (actualTrace.trace.length === 0) {
             return dataStack[0];
@@ -47,21 +46,25 @@ function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
         } else if (elem instanceof Step) {
             if (elem.kind === 'logCall') {
                 let ft = new FunctionTrace();
-                ft.args = elem.argsValues;
+                ft.args = elem.argsValues.map(arg => Value.newValue(arg));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
                 dataStack.push(ft);
             } else if (elem.kind === 'logReturn') {
                 let ft = dataStack.pop();
-                ft.returnVal = elem.result;
+                ft.returnVal = Value.newValue(elem.result);
                 dataStack[dataStack.length - 1].content.push(ft);
             } else if (elem.kind === 'expressionWithoutReturn' || elem.kind === 'expression') {
                 let expTrace = new ExpressionTrace();
+                if (elem.assigns.length !== 0) {
+                    expTrace = new AssignmentExpressionTrace();
+                }
+
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 expTrace.content = syntaxNodeInSource.getExpressionText();
                 expTrace.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
-                expTrace.assigns = elem.assigns;
-                expTrace.result = elem.result;
+                expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value), assign.identifier.name]);
+                expTrace.result = elem.result ? Value.newValue(elem.result) : undefined;
                 dataStack[dataStack.length - 1].content.push(expTrace);
             }
         }
@@ -71,10 +74,3 @@ function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
 
     return rec(actualTrace, sourceFormat, objectData, []);
 }
-
-JsonData.jsonData.getAllData().then(data => {
-    const finalTreeTrace = translateToTreeFormat(data[2], data[0], data[1]);
-    console.log(finalTreeTrace);
-    const trace = new Trace(finalTreeTrace);
-    trace.show();
-});
