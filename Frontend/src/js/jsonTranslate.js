@@ -4,11 +4,12 @@ import {Value} from "./def.js";
 
 export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
     function rec(actualTrace, sourceFormat, objectData, dataStack) {
+        console.log("Current state of dataStack:", JSON.stringify(dataStack.map(elem => elem[0].name + "   " + elem[1].toString() ), null, 2));
+        console.log([...dataStack])
+
         if (actualTrace.trace.length === 0) {
             return dataStack[0][0];
         }
-
-        console.log("Current state of dataStack:", JSON.stringify(dataStack.map(elem => elem[0].name + "   " + elem[1].toString() ), null, 2));
 
         const elem = actualTrace.trace[0];
         let newTrace = actualTrace.sliceFirst();
@@ -28,7 +29,11 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                         stackElement[1] = true;
                     }
                 } else {
-                    //Nothing to do
+                    let ft = dataStack[dataStack.length - 1][0];
+                    if (ft.isVoid) {
+                        dataStack.pop();
+                        pushElement(dataStack, ft);
+                    }
                 }
             } else if (elem.eventType === 'statement') {
                 if (elem.pos === 'start') {
@@ -40,20 +45,22 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                         let syntaxNodeInSource = st.content.find(syntaxNode => syntaxNode.lineNumber !== undefined);
                         st.lineNumber = syntaxNodeInSource.lineNumber;
                         pushElement(dataStack, st);
-                        st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber).getEntireText();
+                        st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber)?.getEntireText();
                     }
                 }
             } else if (elem.eventType === 'subStatement') {
 
             }
         } else if (elem instanceof Step) {
-            if (elem.kind === 'logCall') {
+            if (elem.kind === 'logCall' || elem.kind === 'logVoidCall') {
                 let ft = new FunctionTrace();
                 ft.args = elem.argsValues.map(arg => Value.newValue(arg));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
 
-                ft.name = "???"
+                if (elem.kind === 'logVoidCall') {
+                    ft.isVoid = true;
+                }
 
                 dataStack.push([ft, false]);
             } else if (elem.kind === 'logReturn') {
