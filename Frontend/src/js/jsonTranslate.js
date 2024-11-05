@@ -5,8 +5,10 @@ import {Value} from "./def.js";
 export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
     function rec(actualTrace, sourceFormat, objectData, dataStack) {
         if (actualTrace.trace.length === 0) {
-            return dataStack[0];
+            return dataStack[0][0];
         }
+
+        console.log("Current state of dataStack:", JSON.stringify(dataStack.map(elem => elem[0].name + "   " + elem[1].toString() ), null, 2));
 
         const elem = actualTrace.trace[0];
         let newTrace = actualTrace.sliceFirst();
@@ -19,10 +21,11 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                         //Main function
                         let mainFunction = new FunctionTrace();
                         mainFunction.name = elem.kind.functionName;
-                        dataStack.push(mainFunction);
+                        dataStack.push([mainFunction, true]);
                     } else {
-                        let ft = dataStack[dataStack.length - 1];
-                        ft.name = elem.kind.functionName;
+                        let stackElement = dataStack[dataStack.length - 1];
+                        stackElement[0].name = elem.kind.functionName;
+                        stackElement[1] = true;
                     }
                 } else {
                     //Nothing to do
@@ -30,13 +33,13 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
             } else if (elem.eventType === 'statement') {
                 if (elem.pos === 'start') {
                     let st = new StatementTrace();
-                    dataStack.push(st);
+                    dataStack.push([st, true]);
                 } else {
-                    let st = dataStack.pop();
+                    let st = dataStack.pop()[0];
                     if (st.content.length !== 0) {
                         let syntaxNodeInSource = st.content.find(syntaxNode => syntaxNode.lineNumber !== undefined);
                         st.lineNumber = syntaxNodeInSource.lineNumber;
-                        dataStack[dataStack.length - 1].content.push(st);
+                        pushElement(dataStack, st);
                         st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber).getEntireText();
                     }
                 }
@@ -49,11 +52,14 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                 ft.args = elem.argsValues.map(arg => Value.newValue(arg));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
-                dataStack.push(ft);
+
+                ft.name = "???"
+
+                dataStack.push([ft, false]);
             } else if (elem.kind === 'logReturn') {
-                let ft = dataStack.pop();
+                let ft = dataStack.pop()[0];
                 ft.returnVal = Value.newValue(elem.result);
-                dataStack[dataStack.length - 1].content.push(ft);
+                pushElement(dataStack, ft);
             } else if (elem.kind === 'expressionWithoutReturn' || elem.kind === 'expression') {
                 let expTrace = new ExpressionTrace();
                 if (elem.assigns.length !== 0) {
@@ -65,12 +71,18 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                 expTrace.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
                 expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value), assign.identifier.name]);
                 expTrace.result = elem.result ? Value.newValue(elem.result) : undefined;
-                dataStack[dataStack.length - 1].content.push(expTrace);
+                pushElement(dataStack, expTrace);
             }
         }
 
         return rec(newTrace, sourceFormat, objectData, dataStack);
     }
 
+    function pushElement(dataStack, elem) {
+        const result = dataStack.slice().reverse().findIndex(stackElem => stackElem[1]);
+        dataStack[dataStack.length - 1 - result][0].content.push(elem);
+    }
+
     return rec(actualTrace, sourceFormat, objectData, []);
 }
+
