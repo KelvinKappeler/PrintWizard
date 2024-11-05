@@ -6,7 +6,7 @@ public class Exemple {
     }
 
     public static void f1() {
-        System.out.println("Hello World!")
+        System.out.println("Hello World!");
     }
 
     public static void f2(int a) {
