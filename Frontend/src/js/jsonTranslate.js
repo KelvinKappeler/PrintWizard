@@ -4,8 +4,8 @@ import {Value} from "./def.js";
 
 export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
     function rec(actualTrace, sourceFormat, objectData, dataStack) {
-        console.log("Current state of dataStack:", JSON.stringify(dataStack.map(elem => elem[0].name + "   " + elem[1].toString() ), null, 2));
-        console.log([...dataStack])
+        //console.log("Current state of dataStack:", JSON.stringify(dataStack.map(elem => elem[0].name + "   " + elem[1].toString() ), null, 2));
+        //console.log([...dataStack])
 
         if (actualTrace.trace.length === 0) {
             return dataStack[0][0];
@@ -52,17 +52,33 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
 
             }
         } else if (elem instanceof Step) {
-            if (elem.kind === 'logCall' || (elem.kind === 'logVoidCall' && elem.nodeKey !== "absent")) {
+            if (elem.kind === 'logCall' || (elem.kind === 'logVoidCall' && elem.nodeKey !== 'absent')) {
+                let nextElem = newTrace.trace[0];
                 let ft = new FunctionTrace();
                 ft.args = elem.argsValues.map(arg => Value.newValue(arg));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
-                ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
+                ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? '-' : syntaxNodeInSource.startLine;
 
                 if (elem.kind === 'logVoidCall') {
                     ft.isVoid = true;
                 }
 
-                dataStack.push([ft, false]);
+                const isExternalWithoutReturn = (nextElem instanceof Event && (nextElem.eventType === 'statement' || nextElem.eventType === 'subStatement') && nextElem.pos === 'end');
+                const isExternalWithReturn = (nextElem instanceof Step && nextElem.kind === 'logReturn');
+                ft.isExternal = isExternalWithoutReturn || isExternalWithReturn;
+
+                if (!ft.isExternal) {
+                  dataStack.push([ft, false]);
+                } else {
+                    if (isExternalWithReturn) {
+                        ft.returnVal = Value.newValue(nextElem.result);
+                        newTrace = newTrace.sliceFirst();
+                    }
+
+                    ft.name = syntaxNodeInSource.getFirstExpressionWithoutParenthesis();
+                    pushElement(dataStack, ft);
+                }
+
             } else if (elem.kind === 'logReturn') {
                 let ft = dataStack.pop()[0];
                 ft.returnVal = Value.newValue(elem.result);

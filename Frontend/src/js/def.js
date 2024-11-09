@@ -74,12 +74,13 @@ export class AssignmentExpressionTrace extends TraceElement {
 }
 
 export class FunctionTrace extends TraceElement {
-    constructor(lineNumber = "", content = [], name = "", args = [], returnVal = null, isVoid = false) {
+    constructor(lineNumber = "", content = [], name = "", args = [], returnVal = null, isVoid = false, isExternal = false) {
         super(lineNumber, content);
         this.name = name;
         this.args = args;
         this.returnVal = returnVal;
         this.isVoid = isVoid;
+        this.isExternal = isExternal;
     }
 
     append(trace) {
