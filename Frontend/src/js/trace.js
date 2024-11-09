@@ -21,6 +21,10 @@ export class Trace {
     }
 
     show() {
+        Trace.lineNumbersArea.innerHTML = '';
+        Trace.trianglesArea.innerHTML = '';
+        Trace.traceContentArea.innerHTML = '';
+
         this.treeTrace.append(this);
 
         Trace.lineNumbersArea.appendChild(this.blockStack[0].linesNumber);

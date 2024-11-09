@@ -57,6 +57,9 @@
         </div>
     </div>
     <a href="#">Settings</a>
+    <a href="#" onclick="loadData('../Data/BasicOperation/');">BE</a>
+    <a href="#" onclick="loadData('../Data/Functions/');">Fun</a>
+    <a href="#" onclick="loadData('../Data/Conditions/');">Cond</a>
     <label>
         <input type="text" placeholder="Query...">
     </label>
@@ -196,6 +199,10 @@
         openInspectorTab('objectInspector');
     });
 
+</script>
+<script type="module">
+    import { loadData } from './src/js/main.js';
+    window.loadData = loadData;
 </script>
 <!--<script type="module" src="src/js/def.js"></script>
 <script type="module" src="src/js/triangle.js"></script>

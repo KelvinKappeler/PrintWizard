@@ -26,6 +26,11 @@ export class JsonData {
     getAllData() {
         return Promise.all([this.sourceFormat, this.objectData, this.eventTrace]);
     }
+
+    static withLocation(location) {
+        JsonData.jsonData = new JsonData(location)
+        return JsonData.jsonData;
+    }
 }
 
 //JsonData.jsonData.sourceFormat.then(data => console.log(data));

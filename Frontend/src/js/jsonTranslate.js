@@ -52,7 +52,7 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
 
             }
         } else if (elem instanceof Step) {
-            if (elem.kind === 'logCall' || elem.kind === 'logVoidCall') {
+            if (elem.kind === 'logCall' || (elem.kind === 'logVoidCall' && elem.nodeKey !== "absent")) {
                 let ft = new FunctionTrace();
                 ft.args = elem.argsValues.map(arg => Value.newValue(arg));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
