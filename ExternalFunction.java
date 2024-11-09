@@ -4,6 +4,6 @@ public class ExternalFunction {
 
         long currentTime = System.currentTimeMillis();
 
-        long mathTest = System.out.println(Math.sqrt(Math.random()).toString());
+        System.out.println(Math.sqrt(Math.random()).toString());
     }
 }
