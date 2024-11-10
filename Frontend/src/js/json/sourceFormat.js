@@ -30,7 +30,30 @@ class SyntaxNode {
             return "";
         }
 
-        return this.prefix.text + this.getExpressionText() + this.suffix.text;
+        let prefixText = this.prefix.text;
+        if (prefixText.startsWith("{") || prefixText.startsWith("}")) {
+            prefixText = prefixText.substring(1).trimStart();
+        }
+
+        let suffixText = this.suffix.text;
+        if (suffixText.endsWith("}") || suffixText.endsWith("{")) {
+            suffixText = suffixText.substring(0, suffixText.length - 1).trimEnd();
+        }
+
+        let entireText = prefixText + this.getExpressionText() + suffixText;
+
+        //Parenthesis
+        let openCount = 0;
+        for (let char of entireText) {
+            if (char === '(') {
+                openCount++;
+            } else if (char === ')') {
+                openCount = Math.max(openCount - 1, 0);
+            }
+        }
+        entireText += ')'.repeat(openCount);
+
+        return entireText;
     }
 
     getExpressionText() {

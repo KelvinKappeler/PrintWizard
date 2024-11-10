@@ -18,7 +18,7 @@ export class StatementTrace extends TraceElement {
 
     append(trace) {
         const lineFragment = document.createDocumentFragment();
-        lineFragment.appendChild(document.createTextNode(this.line));
+        lineFragment.appendChild(TraceSpan.wrapKeywords(this.line));
         trace.createBlock(this.lineNumber, lineFragment, true);
 
         for (let traceElem of this.content) {
@@ -38,7 +38,7 @@ export class ExpressionTrace extends TraceElement {
 
     append(trace) {
         const contentFragment = document.createDocumentFragment();
-        contentFragment.appendChild(document.createTextNode(this.content));
+        contentFragment.appendChild(TraceSpan.wrapKeywords(this.content));
 
         if (this.result) {
             contentFragment.appendChild(document.createTextNode(" -> "));
@@ -131,24 +131,40 @@ export class Value {
 
     documentFragment(traceSpanType = TraceSpanType.ReturnValue) {}
 
-    static newValue(element) {
+    static newValue(element, objectData) {
         if (element.dataType === 'instanceRef') {
             return new ObjectValue(
                 element.className.className,
                 element.pointer,
-                element.value
+                element.version,
+                Value.newFieldsValue(objectData.getLastVersion(element.pointer, element.version).fields, objectData)
             );
         } else {
             return new PrimitiveValue(element.dataType, element.value);
         }
     }
+
+    static newFieldsValue(fields, objectData) {
+        return fields.map(field => {
+            if (field.value.dataType === 'instanceRef') {
+                return [field.identifier.name, new ObjectValue(
+                    field.value.className.className,
+                    field.value.pointer,
+                    field.value.version,
+                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields))];
+            } else {
+                return [field.identifier.name, new PrimitiveValue(field.value.dataType, field.value.value)];
+            }
+        });
+    }
 }
 
-class ObjectValue extends Value {
-    constructor(dataType = "", pointer = null, value = "") {
+export class ObjectValue extends Value {
+    constructor(dataType = "", pointer = null, version = 0, fields = []) {
         super(dataType);
         this.pointer = pointer;
-        this.value = value;
+        this.version = version;
+        this.fields = fields;
     }
 
     documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
@@ -165,7 +181,7 @@ class ObjectValue extends Value {
     }
 }
 
-class PrimitiveValue extends Value {
+export class PrimitiveValue extends Value {
     constructor(dataType = "", value = "") {
         super(dataType);
         this.value = value;

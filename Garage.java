@@ -1,26 +1,32 @@
-public class Supermarket {
+public class Garage {
 
     public static void main(String[] args) {
-        // Create a new person and car objects
-        Person alice = new Person("Alice", 30);
+        // Create a Car and assign it to a Person
         Car car = new Car("Toyota", 2005);
+        Person alice = new Person("Alice", 30, car);
 
-        // Update the person's age and car's year
+        // Modify fields in both the Person and Car objects
         alice.setAge(31);
-        car.setYear(2010);
-
-        // Perform some more modifications
         alice.setName("Alice Smith");
-        car.setModel("Honda");
+        alice.getCar().setModel("Honda");
+        alice.getCar().setYear(2010);
+
+        // Further modifications to test nested object field updates
+        car.setModel("Ford");
+
+        Car testCar = car;
+        alice.setCar(new Car("Mazda", 2022));
     }
 
     public static class Person {
         private String name;
         private int age;
+        private Car car;
 
-        public Person(String name, int age) {
+        public Person(String name, int age, Car car) {
             this.name = name;
             this.age = age;
+            this.car = car;
         }
 
         public void setName(String name) {
@@ -29,6 +35,14 @@ public class Supermarket {
 
         public void setAge(int age) {
             this.age = age;
+        }
+
+        public Car getCar() {
+            return car;
+        }
+
+        public void setCar(Car car) {
+            this.car = car;
         }
     }
 

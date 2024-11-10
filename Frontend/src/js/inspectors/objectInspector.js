@@ -1,3 +1,5 @@
+import {PrimitiveValue} from "../def.js";
+
 export class ObjectInspector {
     static objectInspectorId = document.getElementById('objectInspector');
 
@@ -21,11 +23,24 @@ export class ObjectInspector {
             { label: "Type:", value: objectValue.dataType }
         ];
 
-        ObjectInspector.objectInspectorId.appendChild(this.createTable(generalRows, 'objectInspectorDescription'));
+        ObjectInspector.objectInspectorId.appendChild(this.createHeaderTable(generalRows, 'objectInspectorDescription'));
 
+        const fieldsTitle = document.createElement("h2");
+        fieldsTitle.appendChild(document.createTextNode('Fields'));
+        ObjectInspector.objectInspectorId.appendChild(fieldsTitle);
+
+        if (objectValue.fields.length === 0) {
+            ObjectInspector.objectInspectorId.appendChild(document.createTextNode("No fields"));
+            return;
+        }
+
+        console.log(objectValue.fields);
+        ///[Name/Type/Value] ->
+
+        ObjectInspector.objectInspectorId.appendChild(ObjectInspector.createFieldsTable(objectValue.fields, undefined));
     }
 
-    static createTable(data, id) {
+    static createHeaderTable(data, id) {
         const table = document.createElement("table");
         table.id = id;
 
@@ -44,6 +59,43 @@ export class ObjectInspector {
         });
 
         return table;
+    }
+
+    static createFieldsTable(fields, id) {
+        const fieldsTable = document.createElement("table");
+        fieldsTable.id = "objectFields";
+
+        const headerRow = document.createElement("tr");
+        ["Name", "Type", "Value"].forEach(headerText => {
+            const th = document.createElement("td");
+            th.innerHTML = `<strong>${headerText}</strong>`;
+            headerRow.appendChild(th);
+        });
+        fieldsTable.appendChild(headerRow);
+
+        fields.forEach(field => {
+            const tr = document.createElement("tr");
+
+            const nameCell = document.createElement("td");
+            const typeCell = document.createElement("td");
+            const valueCell = document.createElement("td");
+
+            nameCell.textContent = field[0];
+            if (field[1] instanceof PrimitiveValue) {
+                typeCell.textContent = field[1].dataType;
+                valueCell.textContent = field[1].value;
+            } else {
+                typeCell.textContent = field[1].dataType;
+                valueCell.appendChild(field[1].documentFragment())
+            }
+
+            tr.appendChild(nameCell);
+            tr.appendChild(typeCell);
+            tr.appendChild(valueCell);
+            fieldsTable.appendChild(tr);
+        });
+
+        return fieldsTable;
     }
 
     /*

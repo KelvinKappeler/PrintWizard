@@ -15,7 +15,6 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
         let newTrace = actualTrace.sliceFirst();
 
         if (elem instanceof Event) {
-            let eventId = elem.eventId;
             if (elem.eventType === 'controlFlow' && elem.kind.type === 'FunctionContext') {
                 if (elem.pos === 'start') {
                     if (dataStack.length === 0) {
@@ -40,22 +39,35 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                     let st = new StatementTrace();
                     dataStack.push([st, true]);
                 } else {
-                    let st = dataStack.pop()[0];
-                    if (st.content.length !== 0) {
-                        let syntaxNodeInSource = st.content.find(syntaxNode => syntaxNode.lineNumber !== undefined);
-                        st.lineNumber = syntaxNodeInSource.lineNumber;
-                        pushElement(dataStack, st);
-                        st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber)?.getEntireText();
+                    let nextElem = newTrace.trace[0];
+                    if (nextElem instanceof Event && nextElem.eventType === 'controlFlow' && nextElem.kind.type === 'DefaultContext' && nextElem.pos === 'start') {
+                        newTrace = newTrace.sliceFirst();
+                    } else {
+                        let st = dataStack.pop()[0];
+                        if (st.content.length !== 0) {
+                            let syntaxNodeInSource = st.content.find(syntaxNode => syntaxNode.lineNumber !== undefined);
+                            st.lineNumber = syntaxNodeInSource.lineNumber;
+                            pushElement(dataStack, st);
+                            st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber)?.getEntireText();
+                        }
                     }
                 }
             } else if (elem.eventType === 'subStatement') {
 
+            } else if (elem.eventType === 'controlFlow' && elem.kind.type === 'DefaultContext' && elem.pos === 'end') {
+                let st = dataStack.pop()[0];
+                if (st.content.length !== 0) {
+                    let syntaxNodeInSource = st.content.find(syntaxNode => syntaxNode.lineNumber !== undefined);
+                    st.lineNumber = syntaxNodeInSource.lineNumber;
+                    pushElement(dataStack, st);
+                    st.line = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.startLine === st.lineNumber)?.getEntireText();
+                }
             }
         } else if (elem instanceof Step) {
             if (elem.kind === 'logCall' || (elem.kind === 'logVoidCall' && elem.nodeKey !== 'absent')) {
                 let nextElem = newTrace.trace[0];
                 let ft = new FunctionTrace();
-                ft.args = elem.argsValues.map(arg => Value.newValue(arg));
+                ft.args = elem.argsValues.map(arg => Value.newValue(arg, objectData));
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 ft.lineNumber = (syntaxNodeInSource.startLine === undefined) ? '-' : syntaxNodeInSource.startLine;
 
@@ -71,7 +83,7 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                   dataStack.push([ft, false]);
                 } else {
                     if (isExternalWithReturn) {
-                        ft.returnVal = Value.newValue(nextElem.result);
+                        ft.returnVal = Value.newValue(nextElem.result, objectData);
                         newTrace = newTrace.sliceFirst();
                     }
 
@@ -81,7 +93,7 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
 
             } else if (elem.kind === 'logReturn') {
                 let ft = dataStack.pop()[0];
-                ft.returnVal = Value.newValue(elem.result);
+                ft.returnVal = Value.newValue(elem.result, objectData);
                 pushElement(dataStack, ft);
             } else if (elem.kind === 'expressionWithoutReturn' || elem.kind === 'expression') {
                 let expTrace = new ExpressionTrace();
@@ -92,8 +104,8 @@ export function translateToTreeFormat(actualTrace, sourceFormat, objectData) {
                 let syntaxNodeInSource = sourceFormat.syntaxNodes.find(syntaxNode => syntaxNode.identifier === elem.nodeKey);
                 expTrace.content = syntaxNodeInSource.getExpressionText();
                 expTrace.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
-                expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value), assign.identifier.name]);
-                expTrace.result = elem.result ? Value.newValue(elem.result) : undefined;
+                expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value, objectData), assign.identifier.name]);
+                expTrace.result = elem.result ? Value.newValue(elem.result, objectData) : undefined;
                 pushElement(dataStack, expTrace);
             }
         }

@@ -35,7 +35,7 @@ export class Step {
     constructor(step) {
         this.stepId = step.stepId;
         this.nodeKey = step.nodeKey;
-        this.argsValues = step.argsValues ? step.argsValues.map(arg => new ArgValue(arg)) : [];
+        this.argsValues = step.argsValues ? step.argsValues.map(arg => ArgValue.newArg(arg)) : [];
         this.type = step.type;
         this.kind = step.kind;
         this.result = step.result ? new Result(step.result) : undefined;
@@ -45,8 +45,31 @@ export class Step {
 
 class ArgValue {
     constructor(arg) {
-        this.value = arg.value;
         this.dataType = arg.dataType;
+    }
+
+    static newArg(argument) {
+        if (argument.dataType === "instanceRef") {
+            return new ObjectArgValue(argument);
+        } else {
+            return new PrimitiveArgValue(argument);
+        }
+    }
+}
+
+class PrimitiveArgValue extends ArgValue {
+    constructor(arg) {
+        super(arg);
+        this.value = arg.value;
+    }
+}
+
+class ObjectArgValue extends ArgValue {
+    constructor(arg) {
+        super(arg);
+        this.pointer = arg.pointer;
+        this.className = new ClassName(arg.className);
+        this.version = arg.version;
     }
 }
 

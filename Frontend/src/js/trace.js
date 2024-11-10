@@ -100,6 +100,7 @@ export class TraceSpanType {
     static ReturnValue = new TraceSpanType("returnValue");
     static FunctionName = new TraceSpanType("functionName");
     static ArgsValue = new TraceSpanType("argsValue");
+    static Keywords = new TraceSpanType("keywords");
 
     constructor(name) {
         this.name = name;
@@ -107,11 +108,53 @@ export class TraceSpanType {
 }
 
 export class TraceSpan {
+    static keywords = [
+        "abstract", "continue", "for", "new", "switch",
+        "default", "do", "if", "private", "this",
+        "break", "double", "implements", "protected", "throw",
+        "byte", "else", "import", "public", "throws",
+        "case", "enum", "instanceof", "return", "transient",
+        "catch", "extends", "int", "short", "try",
+        "char", "final", "interface", "static", "void",
+        "class", "finally", "long", "volatile", "float",
+        "native", "super", "while"
+    ];
+
     static createSpan(category, textContent) {
         const span = document.createElement('span');
         span.classList.add(category.name);
         span.appendChild(document.createTextNode(textContent));
 
         return span;
+    }
+
+    static wrapKeywords(line) {
+        const fragment = document.createDocumentFragment();
+        const regex = new RegExp(`(\\b(?:${TraceSpan.keywords.join("|")})(?=\\W|$)|[()])`, 'g');
+
+        let lastIndex = 0;
+        let match;
+
+        while ((match = regex.exec(line)) !== null) {
+            const matchedText = match[0];
+
+            if (match.index > lastIndex) {
+                fragment.appendChild(document.createTextNode(line.slice(lastIndex, match.index)));
+            }
+
+            if (TraceSpan.keywords.includes(matchedText)) {
+                fragment.appendChild(TraceSpan.createSpan(TraceSpanType.Keywords, matchedText));
+            } else if (matchedText === '(' || matchedText === ')') {
+                fragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, matchedText));
+            }
+
+            lastIndex = regex.lastIndex;
+        }
+
+        if (lastIndex < line.length) {
+            fragment.appendChild(document.createTextNode(line.slice(lastIndex)));
+        }
+
+        return fragment;
     }
 }
