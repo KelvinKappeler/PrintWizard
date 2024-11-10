@@ -40,6 +40,14 @@ class SyntaxNode {
 
         return this.expression.tokens.map(token => token.text).join("");
     }
+
+    getFirstExpressionWithoutParenthesis() {
+        if (this.expression == null) {
+            return "";
+        }
+
+        return this.expression.tokens[0].text.replace(/[()]+$/, "");
+    }
 }
 
 class Expression {
