@@ -198,6 +198,12 @@ export class PrimitiveValue extends Value {
     }
 }
 
+export class LoopTrace extends TraceElement {
+    constructor(lineNumber, content) {
+        super(lineNumber, content);
+    }
+}
+
 /*
 export class LoopTrace extends TraceElement {
     constructor(lineNumber, content, iterations) {
