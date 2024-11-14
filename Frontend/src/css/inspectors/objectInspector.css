@@ -5,6 +5,12 @@
     width: 100%;
 }
 
+.objectInspectorPanel {
+    background-color: #1350ac;
+    margin-bottom: 10px;
+    display: block;
+}
+
 #objectInspectorDescription td:nth-child(1) {
     color: #dc8608;
 }
@@ -13,7 +19,6 @@
     border: 1px solid #1e1f22;
     background-color: #2b2d30;
     padding: 10px;
-    border-radius: 8px;
     width: 100%;
 }
 

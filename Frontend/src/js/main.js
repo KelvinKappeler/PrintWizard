@@ -10,8 +10,7 @@ export function loadData(location) {
         console.log(finalTreeTrace);
         const trace = new Trace(finalTreeTrace);
         trace.show();
-
-        ObjectInspector.update(undefined);
+        ObjectInspector.clear();
     });
 }
 
