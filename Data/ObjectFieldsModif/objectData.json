@@ -352,5 +352,107 @@
         }
       }
     ]
+  },
+  {
+    "self": {
+      "pointer": 960604060,
+      "className": {
+        "className": "Car",
+        "packageName": ""
+      },
+      "version": 21,
+      "dataType": "instanceRef"
+    },
+    "fields": [
+      {
+        "identifier": {
+          "name": "model",
+          "owner": {
+            "pointer": 960604060,
+            "className": {
+              "className": "Car",
+              "packageName": ""
+            },
+            "version": 1,
+            "dataType": "instanceRef"
+          },
+          "dataType": "fieldIdentifier"
+        },
+        "value": {
+          "value": "Honda",
+          "dataType": "string"
+        }
+      },
+      {
+        "identifier": {
+          "name": "year",
+          "owner": {
+            "pointer": 960604060,
+            "className": {
+              "className": "Car",
+              "packageName": ""
+            },
+            "version": 1,
+            "dataType": "instanceRef"
+          },
+          "dataType": "fieldIdentifier"
+        },
+        "value": {
+          "value": 2005,
+          "dataType": "int"
+        }
+      }
+    ]
+  },
+  {
+    "self": {
+      "pointer": 960604060,
+      "className": {
+        "className": "Car",
+        "packageName": ""
+      },
+      "version": 25,
+      "dataType": "instanceRef"
+    },
+    "fields": [
+      {
+        "identifier": {
+          "name": "model",
+          "owner": {
+            "pointer": 960604060,
+            "className": {
+              "className": "Car",
+              "packageName": ""
+            },
+            "version": 1,
+            "dataType": "instanceRef"
+          },
+          "dataType": "fieldIdentifier"
+        },
+        "value": {
+          "value": "Ford",
+          "dataType": "string"
+        }
+      },
+      {
+        "identifier": {
+          "name": "year",
+          "owner": {
+            "pointer": 960604060,
+            "className": {
+              "className": "Car",
+              "packageName": ""
+            },
+            "version": 1,
+            "dataType": "instanceRef"
+          },
+          "dataType": "fieldIdentifier"
+        },
+        "value": {
+          "value": 2010,
+          "dataType": "int"
+        }
+      }
+    ]
   }
 ]
