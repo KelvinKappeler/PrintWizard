@@ -75,11 +75,11 @@ export class Trace {
             let triangle = createTriangle();
             lastBlock.triangles.appendChild(triangle);
             triangle.addEventListener('click', () => {
-                toggleTriangle(triangle, newBlock);
+                toggleTriangle(triangle, [newBlock.linesNumber, newBlock.traceContent, newBlock.triangles]);
             });
 
             if (isNewBlockHidden) {
-                foldTriangle(triangle, newBlock);
+                foldTriangle(triangle,[newBlock.linesNumber, newBlock.traceContent, newBlock.triangles]);
             }
         }
         lastBlock.triangles.appendChild(document.createElement('br'));

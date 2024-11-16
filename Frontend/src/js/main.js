@@ -2,6 +2,7 @@ import {JsonData} from "./json/jsonData.js";
 import {Trace} from "./trace.js";
 import {translateToTreeFormat} from "./jsonTranslate.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
+import {Breadcrumb} from "./breadcrumb.js";
 
 export function loadData(location) {
     console.clear();
@@ -11,6 +12,9 @@ export function loadData(location) {
         const trace = new Trace(finalTreeTrace);
         trace.show();
         ObjectInspector.clear();
+        Breadcrumb.clear();
+        Breadcrumb.add(data[0].sourceFile.fileName);
+        Breadcrumb.add(finalTreeTrace.name + "()");
     });
 }
 

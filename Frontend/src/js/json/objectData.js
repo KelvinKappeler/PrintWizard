@@ -1,6 +1,7 @@
 export class ObjectData {
     constructor(objectData) {
         this.objectData = objectData.map(objectDataNode => new ObjectDataNode(objectDataNode));
+        this.stateDictionary = this.createStateDictionary();
     }
 
     getLastVersion(id, version) {
@@ -12,6 +13,19 @@ export class ObjectData {
         return filteredNodes.reduce((latestNode, currentNode) =>
             currentNode.self.version > latestNode.self.version ? currentNode : latestNode
         );
+    }
+
+    createStateDictionary() {
+        const uniquePointers = new Set(this.objectData.map(node => node.self.pointer));
+        const stateDictionary = new Map();
+
+        for (const pointer of uniquePointers) {
+            let objectStates = this.objectData.filter(node => node.self.pointer === pointer);
+            objectStates.sort((a, b) => a.self.version - b.self.version);
+            stateDictionary.set(pointer, objectStates);
+        }
+
+        return stateDictionary;
     }
 }
 

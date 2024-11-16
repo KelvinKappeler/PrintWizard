@@ -137,7 +137,8 @@ export class Value {
                 element.className.className,
                 element.pointer,
                 element.version,
-                Value.newFieldsValue(objectData.getLastVersion(element.pointer, element.version).fields, objectData)
+                Value.newFieldsValue(objectData.getLastVersion(element.pointer, element.version).fields, objectData),
+                objectData.stateDictionary.get(element.pointer)
             );
         } else {
             return new PrimitiveValue(element.dataType, element.value);
@@ -160,11 +161,12 @@ export class Value {
 }
 
 export class ObjectValue extends Value {
-    constructor(dataType = "", pointer = null, version = 0, fields = []) {
+    constructor(dataType = "", pointer = null, version = 0, fields = [], states = []) {
         super(dataType);
         this.pointer = pointer;
         this.version = version;
         this.fields = fields;
+        this.states = states;
     }
 
     documentFragment(traceSpanType = TraceSpanType.ReturnValue) {

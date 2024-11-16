@@ -1,50 +1,66 @@
-#objectInspectorDescription {
-    border: 1px solid #1e1f22;
-    background-color: #2b2d30;
-    padding: 10px;
-    width: 100%;
-}
-
 .objectInspectorPanel {
-    background-color: #1350ac;
-    margin-bottom: 10px;
+    background-color: #323236;
+    margin-bottom: 20px;
     display: block;
+    padding: 5px;
+    border: #4c4b4b solid 1px;
 }
 
-#objectInspectorDescription td:nth-child(1) {
-    color: #dc8608;
-}
-
-#objectFields {
-    border: 1px solid #1e1f22;
-    background-color: #2b2d30;
+.objectTitle {
+    font-size: 26px;
+    font-weight: bold;
+    border: #4c4b4b solid 1px;
+    background-color: #3a3d41;
+    margin: 10px;
     padding: 10px;
-    width: 100%;
 }
 
-#objectFields tr:first-child td {
-    color: #fbfbfb;
-    font-weight: Bold;
-    font-size: 15px;
+.fieldsDiv {
+    margin: 10px;
+    padding: 10px;
+    background-color: #3a3d41;
+    border: #4c4b4b solid 1px;
 }
 
-#objectFields td {
-    padding: 8px 10px;
-    border-bottom: 1px solid #bababa;
+.fieldDiv {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: #9a4604 solid 1px;
 }
 
-#objectFields tr:last-child td {
-    border-bottom: none;
+.closeButton {
+    cursor: pointer;
+    float: right;
+    border-left: 1px solid #555;
+    color: #858585;
 }
 
-#objectFields td:nth-child(1) {
-    color: #ffcc00;
+.closeButton:hover {
+    background-color: #b32f2f;
+    cursor: pointer;
 }
 
-#objectFields td:nth-child(2) {
-    color: #00ccff;
+.triangleObjectInspector {
+    font-size: 18px;
+    border-right: 1px solid #555;
+    padding-right: 10px;
+    color: #858585;
+    margin-right: 10px;
 }
 
-#objectFields td:nth-child(3) {
-    color: #ff6666;
+.triangleFields {
+    font-size: 12px;
+    padding-right: 5px;
+    color: #858585;
+    margin-right: 10px;
+}
+
+.triangleObjectInspector:hover {
+    color: #4383a1;
+    cursor: pointer;
+}
+
+.triangleFields:hover {
+    color: #4383a1;
+    cursor: pointer;
 }

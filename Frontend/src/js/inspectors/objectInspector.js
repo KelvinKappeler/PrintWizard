@@ -1,110 +1,78 @@
-import {PrimitiveValue} from "../def.js";
+import {ObjectValue} from "../def.js";
+import {createTriangle, toggleTriangle} from "../triangle.js";
+import {Window} from "../window.js";
 
 export class ObjectInspector {
     static objectInspectorId = document.getElementById('objectInspector');
 
     static update(objectValue) {
-        //ObjectInspector.objectInspectorId.innerHTML = '';
-
-        if (objectValue === undefined) {
-            const h2 = document.createElement('h2');
-            h2.appendChild(document.createTextNode('No object selected'));
-            ObjectInspector.objectInspectorId.appendChild(h2);
-
+        if (ObjectInspector.checkIfEmpty()) {
             return;
         }
 
         const mainDiv = document.createElement('div');
         mainDiv.classList.add('objectInspectorPanel');
 
-        const closeButton = document.createElement('button');
+        const titleDiv = document.createElement('div');
+        const triangle = createTriangle();
+        triangle.classList.add('triangleObjectInspector');
+        triangle.addEventListener('click', () => {
+           toggleTriangle(triangle, [fieldsDiv]);
+        });
+        titleDiv.appendChild(triangle);
+        titleDiv.appendChild(document.createTextNode(objectValue.dataType + ": $" + objectValue.pointer));
+        titleDiv.classList.add('objectTitle');
+        const closeButton = document.createElement('i');
         closeButton.classList.add('bi');
         closeButton.classList.add('bi-x');
+        closeButton.classList.add('closeButton');
         closeButton.addEventListener('click', () => {
-            ObjectInspector.removeAtIndex(ObjectInspector.getLength());
+            ObjectInspector.remove(mainDiv);
+            ObjectInspector.checkIfEmpty();
         });
-        mainDiv.appendChild(closeButton);
+        titleDiv.appendChild(closeButton);
+        mainDiv.appendChild(titleDiv);
 
-        const h2 = document.createElement('h2');
-        h2.appendChild(document.createTextNode('General'));
-        mainDiv.appendChild(h2)
+        const fieldsDiv = document.createElement('div');
+        fieldsDiv.classList.add('fieldsDiv');
 
-        const generalRows = [
-            { label: "Id:", value: objectValue.pointer },
-            { label: "Type:", value: objectValue.dataType }
-        ];
+        for (let i = 0; i < objectValue.fields.length; i++) {
+            const field = objectValue.fields[i];
+            const fieldDiv = document.createElement('div');
 
-        mainDiv.appendChild(this.createHeaderTable(generalRows, 'objectInspectorDescription'));
+            const statesDiv = ObjectInspector.createFieldStateDiv(objectValue.states, objectValue, field);
 
-        const fieldsTitle = document.createElement("h2");
-        fieldsTitle.appendChild(document.createTextNode('Fields'));
-        mainDiv.appendChild(fieldsTitle);
-
-        if (objectValue.fields.length === 0) {
-            mainDiv.appendChild(document.createTextNode("No fields"));
-            return;
-        }
-
-        mainDiv.appendChild(ObjectInspector.createFieldsTable(objectValue.fields, undefined));
-        ObjectInspector.objectInspectorId.prepend(mainDiv);
-    }
-
-    static createHeaderTable(data, id) {
-        const table = document.createElement("table");
-        table.id = id;
-
-        data.forEach(row => {
-            const tr = document.createElement("tr");
-
-            const labelCell = document.createElement("td");
-            labelCell.innerHTML = `<strong>${row.label}</strong>`;
-
-            const valueCell = document.createElement("td");
-            valueCell.textContent = row.value;
-
-            tr.appendChild(labelCell);
-            tr.appendChild(valueCell);
-            table.appendChild(tr);
-        });
-
-        return table;
-    }
-
-    static createFieldsTable(fields, id) {
-        const fieldsTable = document.createElement("table");
-        fieldsTable.id = "objectFields";
-
-        const headerRow = document.createElement("tr");
-        ["Name", "Type", "Value"].forEach(headerText => {
-            const th = document.createElement("td");
-            th.innerHTML = `<strong>${headerText}</strong>`;
-            headerRow.appendChild(th);
-        });
-        fieldsTable.appendChild(headerRow);
-
-        fields.forEach(field => {
-            const tr = document.createElement("tr");
-
-            const nameCell = document.createElement("td");
-            const typeCell = document.createElement("td");
-            const valueCell = document.createElement("td");
-
-            nameCell.textContent = field[0];
-            if (field[1] instanceof PrimitiveValue) {
-                typeCell.textContent = field[1].dataType;
-                valueCell.textContent = field[1].value;
+            const fieldTriangle = createTriangle();
+            fieldTriangle.addEventListener('click', () => {
+                toggleTriangle(fieldTriangle, [statesDiv]);
+            });
+            toggleTriangle(fieldTriangle, [statesDiv]);
+            fieldTriangle.classList.add('triangleFields');
+            fieldDiv.appendChild(fieldTriangle)
+            fieldDiv.classList.add('fieldDiv');
+            fieldDiv.appendChild(document.createTextNode(field[1].dataType + " " + field[0] + ": "));
+            if (field[1] instanceof ObjectValue) {
+                fieldDiv.appendChild(field[1].documentFragment());
             } else {
-                typeCell.textContent = field[1].dataType;
-                valueCell.appendChild(field[1].documentFragment())
+                fieldDiv.appendChild(document.createTextNode(field[1].value));
             }
 
-            tr.appendChild(nameCell);
-            tr.appendChild(typeCell);
-            tr.appendChild(valueCell);
-            fieldsTable.appendChild(tr);
-        });
+            fieldDiv.appendChild(statesDiv);
+            fieldsDiv.appendChild(fieldDiv);
+        }
 
-        return fieldsTable;
+        if (objectValue.fields.length === 0) {
+            const emptyField = document.createElement('div');
+            emptyField.innerHTML = 'No fields';
+            fieldsDiv.appendChild(emptyField);
+        }
+
+        mainDiv.appendChild(fieldsDiv);
+
+        ObjectInspector.objectInspectorId.prepend(mainDiv);
+        mainDiv.scrollIntoView();
+
+        ObjectInspector.objectInspectorId.prepend(Window.newWindow(mainDiv));
     }
 
     static clear() {
@@ -112,11 +80,43 @@ export class ObjectInspector {
         this.update(undefined);
     }
 
-    static removeAtIndex(index) {
-        ObjectInspector.objectInspectorId.removeChild(ObjectInspector.objectInspectorId.childNodes[index]);
+    static remove(child) {
+        ObjectInspector.objectInspectorId.removeChild(child);
     }
 
-    static getLength() {
-        return ObjectInspector.objectInspectorId.childNodes.length;
+    static createEmptyState() {
+        const div = document.createElement('div');
+        div.id = 'objectInspectorEmpty';
+        div.innerHTML = '<h2>No object selected</h2>';
+        return div;
+    }
+
+    static checkIfEmpty() {
+        if (ObjectInspector.objectInspectorId.childElementCount === 0) {
+            ObjectInspector.objectInspectorId.append(ObjectInspector.createEmptyState());
+            return true;
+        }
+
+        const emptyDiv = document.getElementById('objectInspectorEmpty');
+        if (emptyDiv) {
+            ObjectInspector.objectInspectorId.removeChild(emptyDiv);
+        }
+        return false;
+    }
+
+    static createFieldStateDiv(states, objectValue, currentField) {
+        let fieldStates = states.map(node => node.fields)
+        fieldStates = fieldStates.map(fields => fields.find(f => f.identifier.name === currentField[0]));
+        console.log(fieldStates);
+        const div = document.createElement('div');
+        for (let f of fieldStates) {
+            if (f instanceof ObjectValue) {
+                div.appendChild(f.documentFragment());
+            } else {
+                div.appendChild(document.createTextNode(f.value.value));
+            }
+        }
+
+        return div;
     }
 }
