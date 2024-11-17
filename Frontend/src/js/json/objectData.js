@@ -18,7 +18,8 @@ export class ObjectData {
     }
 
     createStateDictionary() {
-        const uniquePointers = new Set(this.objectData.map(node => node.self.pointer));
+        const instanceRefs = this.objectData.filter(o => o.self.dataType === "instanceRef");
+        const uniquePointers = new Set(instanceRefs.map(node => node.self.pointer));
         const stateDictionary = new Map();
 
         for (const pointer of uniquePointers) {
@@ -35,7 +36,7 @@ export class ObjectData {
 class ObjectDataNode {
     constructor(objectDataNode) {
         this.self = new Self(objectDataNode.self);
-        this.fields = objectDataNode.fields.map(f => new Field(f));
+        this.fields = objectDataNode.fields ? objectDataNode.fields.map(f => new Field(f)) : undefined;
         this.values = objectDataNode.values ? new Values(objectDataNode.values) : undefined;
     }
 }
@@ -43,7 +44,7 @@ class ObjectDataNode {
 class Self {
     constructor(self) {
         this.pointer = self.pointer;
-        this.className = new ClassName(self.className);
+        this.className = self.className ? new ClassName(self.className) : undefined;
         this.version = self.version;
         this.dataType = self.dataType;
         this.elemType = self.elemType;
@@ -52,7 +53,17 @@ class Self {
 
 class Values {
     constructor(values) {
-        this.values = values.map(v => new Self(v));
+        this.values = values.map(v => new ArrayValue(v));
+    }
+}
+
+class ArrayValue {
+    constructor(arrayValue) {
+        this.dataType = arrayValue.dataType;
+        this.pointer = arrayValue.pointer;
+        this.version = arrayValue.version;
+        this.value = arrayValue.value;
+        this.className = arrayValue.className ? new ClassName(arrayValue.className) : undefined;
     }
 }
 

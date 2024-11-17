@@ -42,7 +42,8 @@ export class ExpressionTrace extends TraceElement {
 
         if (this.result) {
             contentFragment.appendChild(document.createTextNode(" -> "));
-            const returnValFragment = this.result.documentFragment();
+            const spanType = this.result instanceof PrimitiveValue ? TraceSpanType.ReturnValuePrimitive : TraceSpanType.ReturnValue;
+            const returnValFragment = this.result.documentFragment(spanType);
             contentFragment.appendChild(returnValFragment);
         }
 
@@ -62,7 +63,8 @@ export class AssignmentExpressionTrace extends TraceElement {
             contentFragment.appendChild(document.createTextNode(
                 assign[0].dataType + " " + assign[1] + " := ")
             );
-            contentFragment.appendChild(assign[0].documentFragment());
+            const spanType = assign[0] instanceof PrimitiveValue ? TraceSpanType.ReturnValuePrimitive : TraceSpanType.ReturnValue;
+            contentFragment.appendChild(assign[0].documentFragment(spanType));
 
             if (index < this.assigns.length - 1) {
                 contentFragment.appendChild(document.createTextNode(" / "));
@@ -145,9 +147,10 @@ export class Value {
         } else if (element.dataType === 'arrayRef') {
             return new ArrayValue(
                 element.elemType,
-                element.values,
+                objectData.objectData.find(node => node.self.pointer === element.pointer).values.values,
                 element.pointer,
-                element.version
+                element.version,
+                objectData
             );
         } else {
             return new PrimitiveValue(element.dataType, element.value);
@@ -161,17 +164,49 @@ export class Value {
                     field.value.className.className,
                     field.value.pointer,
                     field.value.version,
-                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields),
+                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields, objectData),
                     objectData)];
+            } else if (field.value.dataType === 'arrayRef') {
+                return [field.identifier.name, new ArrayValue(
+                    field.value.elemType,
+                    field.value.values,
+                    field.value.pointer,
+                    field.value.version,
+                    objectData
+                )];
             } else {
                 return [field.identifier.name, new PrimitiveValue(field.value.dataType, field.value.value)];
+            }
+        });
+    }
+
+    static newArrayValues(arrayValues, objectData) {
+        return arrayValues.map(arrayValue => {
+            if (arrayValue.dataType === 'instanceRef') {
+                return new ObjectValue(
+                    arrayValue.className.className,
+                    arrayValue.pointer,
+                    arrayValue.version,
+                    Value.newFieldsValue(objectData.getLastVersion(arrayValue.pointer, arrayValue.version).fields, objectData),
+                    objectData
+                );
+            } else if (arrayValue.dataType === 'arrayRef') {
+                return new ArrayValue(
+                    arrayValue.elemType,
+                    arrayValue.values,
+                    arrayValue.pointer,
+                    arrayValue.version,
+                    objectData
+                );
+            } else {
+                return new PrimitiveValue(arrayValue.dataType, arrayValue.value);
             }
         });
     }
 }
 
 export class ObjectValue extends Value {
-    constructor(dataType = "", pointer = null, version = 0, fields = [], states = undefined) {
+    constructor(dataType = "", pointer = null, version = 0, fields = [], states) {
         super(dataType);
         this.pointer = pointer;
         this.version = version;
@@ -211,19 +246,26 @@ export class PrimitiveValue extends Value {
 }
 
 export class ArrayValue extends Value {
-    constructor(dataType = "", elements = [], pointer = null, version = 0) {
+    constructor(dataType = "", elements = [], pointer = null, version = 0, objectData) {
         super(dataType);
-        this.elements = elements;
+        this.elements = Value.newArrayValues(elements, objectData);
         this.pointer = pointer;
         this.version = version;
     }
 
     documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
         const df = document.createDocumentFragment();
-        const span = TraceSpan.createSpan(
-            traceSpanType,
-            this.dataType + ": [" + this.elements.map(e => e.value).join(", ") + "]"
-        );
+        console.log(this.elements);
+        const span = document.createElement('span');
+        span.append(document.createTextNode("Array: ["));
+        this.elements.forEach((element, index) => {
+            const spanType = element instanceof PrimitiveValue ? TraceSpanType.ReturnValuePrimitive : TraceSpanType.ReturnValue
+            span.appendChild(element.documentFragment(spanType));
+            if (index < this.elements.length - 1) {
+                span.appendChild(document.createTextNode(", "));
+            }
+        });
+        span.append(document.createTextNode("]"));
         df.appendChild(span);
         return df;
     }

@@ -1,13 +1,11 @@
 public class Arrays {
     public static void main(String[] args) {
-        int[] numbers = new int[5] {1, 2, 3, 4, 5};
-        System.out.println(numbers[0]);
+        int[] numbers = new int[]{1, 2, 3, 4, 5};
 
-        Player[] players = new Player[2] {
+        Player[] players = new Player[] {
             new Player("Bastien", 30),
             new Player("Kelvin", 20)
         };
-        System.out.println(players[0].name);
     }
 
     static class Player {
