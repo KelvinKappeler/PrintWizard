@@ -105,7 +105,8 @@ export class FunctionTrace extends TraceElement {
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.FunctionName, this.name));
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, '('));
         this.args.forEach((arg, index) => {
-            const fragment = arg.documentFragment(TraceSpanType.ArgsValue);
+            const typeSpan = arg instanceof PrimitiveValue ? TraceSpanType.ArgsValuePrimitive : TraceSpanType.ArgsValue;
+            const fragment = arg.documentFragment(typeSpan);
             headerFragment.appendChild(fragment);
 
             if (index < this.args.length - 1) {
@@ -115,7 +116,8 @@ export class FunctionTrace extends TraceElement {
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, ')'));
 
         if (this.returnVal) {
-            const returnValFragment = this.returnVal.documentFragment();
+            const typeSpan = this.returnVal instanceof PrimitiveValue ? TraceSpanType.ReturnValuePrimitive : TraceSpanType.ReturnValue;
+            const returnValFragment = this.returnVal.documentFragment(typeSpan);
             headerFragment.appendChild(document.createTextNode(" -> "));
             headerFragment.appendChild(returnValFragment);
         }
@@ -138,7 +140,14 @@ export class Value {
                 element.pointer,
                 element.version,
                 Value.newFieldsValue(objectData.getLastVersion(element.pointer, element.version).fields, objectData),
-                objectData.stateDictionary.get(element.pointer)
+                objectData
+            );
+        } else if (element.dataType === 'arrayRef') {
+            return new ArrayValue(
+                element.elemType,
+                element.values,
+                element.pointer,
+                element.version
             );
         } else {
             return new PrimitiveValue(element.dataType, element.value);
@@ -152,7 +161,8 @@ export class Value {
                     field.value.className.className,
                     field.value.pointer,
                     field.value.version,
-                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields))];
+                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields),
+                    objectData)];
             } else {
                 return [field.identifier.name, new PrimitiveValue(field.value.dataType, field.value.value)];
             }
@@ -161,7 +171,7 @@ export class Value {
 }
 
 export class ObjectValue extends Value {
-    constructor(dataType = "", pointer = null, version = 0, fields = [], states = []) {
+    constructor(dataType = "", pointer = null, version = 0, fields = [], states = undefined) {
         super(dataType);
         this.pointer = pointer;
         this.version = version;
@@ -176,7 +186,7 @@ export class ObjectValue extends Value {
             this.dataType + ": $" + this.pointer
         );
         span.addEventListener('click', () => {
-            ObjectInspector.update(this);
+            ObjectInspector.add(this);
         });
         df.appendChild(span);
         return df;
@@ -200,70 +210,27 @@ export class PrimitiveValue extends Value {
     }
 }
 
+export class ArrayValue extends Value {
+    constructor(dataType = "", elements = [], pointer = null, version = 0) {
+        super(dataType);
+        this.elements = elements;
+        this.pointer = pointer;
+        this.version = version;
+    }
+
+    documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
+        const df = document.createDocumentFragment();
+        const span = TraceSpan.createSpan(
+            traceSpanType,
+            this.dataType + ": [" + this.elements.map(e => e.value).join(", ") + "]"
+        );
+        df.appendChild(span);
+        return df;
+    }
+}
+
 export class LoopTrace extends TraceElement {
     constructor(lineNumber, content) {
         super(lineNumber, content);
     }
 }
-
-/*
-export class LoopTrace extends TraceElement {
-    constructor(lineNumber, content, iterations) {
-        super(lineNumber, content);
-        this.iterations = iterations;
-    }
-
-    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
-        let traceBlock = new TraceBlock(parentTraceBlock, false);
-        let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.content + ") {", traceBlock, parentTraceBlock);
-        traceBlock.setHeaderLine(headerLine);
-        traceBlock.show();
-
-        for (let iter of this.iterations) {
-            iter.show(traceBlock);
-        }
-
-        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
-    }
-}
-
-export class LoopIteration extends TraceElement {
-    constructor(lineNumber, content, currentCondition) {
-        super(lineNumber, content);
-        this.currentCondition = currentCondition;
-    }
-
-    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
-        let traceBlock = new TraceBlock(parentTraceBlock, true);
-        let headerLine = new HeaderTraceLine(this.lineNumber, "for (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
-        traceBlock.setHeaderLine(headerLine);
-        traceBlock.show();
-
-        for (let traceElem of this.content) {
-            traceElem.show(traceBlock);
-        }
-
-        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
-    }
-}
-
-export class ConditionalTrace extends TraceElement {
-    constructor(lineNumber, content, currentCondition) {
-        super(lineNumber, content);
-        this.currentCondition = currentCondition;
-    }
-
-    append(lineNumbersFragment, trianglesFragment, traceContentFragment) {
-        let traceBlock = new TraceBlock(parentTraceBlock, false);
-        let headerLine = new HeaderTraceLine(this.lineNumber, "if (" + this.currentCondition + ") {", traceBlock, parentTraceBlock);
-        traceBlock.setHeaderLine(headerLine);
-        traceBlock.show();
-
-        for (let traceElem of this.content) {
-            traceElem.show(traceBlock);
-        }
-
-        traceBlock.addTraceLine(new TraceLine("-", "}", traceBlock, true));
-    }
-}
-*/

@@ -98,8 +98,10 @@ class StackFragment {
 export class TraceSpanType {
     static Parenthesis = new TraceSpanType("parenthesis");
     static ReturnValue = new TraceSpanType("returnValue");
+    static ReturnValuePrimitive = new TraceSpanType("returnValuePrimitive");
     static FunctionName = new TraceSpanType("functionName");
     static ArgsValue = new TraceSpanType("argsValue");
+    static ArgsValuePrimitive = new TraceSpanType("argsValuePrimitive");
     static Keywords = new TraceSpanType("keywords");
 
     constructor(name) {

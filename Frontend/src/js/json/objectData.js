@@ -1,3 +1,5 @@
+import {ObjectValue, Value} from "../def.js";
+
 export class ObjectData {
     constructor(objectData) {
         this.objectData = objectData.map(objectDataNode => new ObjectDataNode(objectDataNode));
@@ -22,6 +24,7 @@ export class ObjectData {
         for (const pointer of uniquePointers) {
             let objectStates = this.objectData.filter(node => node.self.pointer === pointer);
             objectStates.sort((a, b) => a.self.version - b.self.version);
+            objectStates = objectStates.map(node => new ObjectValue(node.self.dataType, node.self.pointer, node.self.version, Value.newFieldsValue(node.fields, this), this));
             stateDictionary.set(pointer, objectStates);
         }
 
@@ -33,6 +36,7 @@ class ObjectDataNode {
     constructor(objectDataNode) {
         this.self = new Self(objectDataNode.self);
         this.fields = objectDataNode.fields.map(f => new Field(f));
+        this.values = objectDataNode.values ? new Values(objectDataNode.values) : undefined;
     }
 }
 
@@ -42,11 +46,18 @@ class Self {
         this.className = new ClassName(self.className);
         this.version = self.version;
         this.dataType = self.dataType;
+        this.elemType = self.elemType;
+    }
+}
+
+class Values {
+    constructor(values) {
+        this.values = values.map(v => new Self(v));
     }
 }
 
 class Field {
-    constructor(field){
+    constructor(field) {
         this.identifier = new Identifier(field.identifier);
         this.value = field.value;
     }

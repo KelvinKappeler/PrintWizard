@@ -1,11 +1,11 @@
-import {ObjectValue} from "../def.js";
+import {ObjectValue, PrimitiveValue} from "../def.js";
 import {createTriangle, toggleTriangle} from "../triangle.js";
 import {Window} from "../window.js";
 
 export class ObjectInspector {
     static objectInspectorId = document.getElementById('objectInspector');
 
-    static update(objectValue) {
+    static add(objectValue, isWindow = false) {
         if (ObjectInspector.checkIfEmpty()) {
             return;
         }
@@ -20,8 +20,19 @@ export class ObjectInspector {
            toggleTriangle(triangle, [fieldsDiv]);
         });
         titleDiv.appendChild(triangle);
-        titleDiv.appendChild(document.createTextNode(objectValue.dataType + ": $" + objectValue.pointer));
+        titleDiv.appendChild(document.createTextNode(
+            objectValue.dataType + ": $" + objectValue.pointer + " (v" + objectValue.version + ")"
+        ));
         titleDiv.classList.add('objectTitle');
+        const openWindow = document.createElement('i');
+        openWindow.classList.add('bi');
+        openWindow.classList.add('bi-window-plus');
+        openWindow.classList.add('closeButton');
+        openWindow.addEventListener('click', () => {
+            ObjectInspector.add(objectValue, true);
+            ObjectInspector.remove(mainDiv);
+        });
+
         const closeButton = document.createElement('i');
         closeButton.classList.add('bi');
         closeButton.classList.add('bi-x');
@@ -30,7 +41,10 @@ export class ObjectInspector {
             ObjectInspector.remove(mainDiv);
             ObjectInspector.checkIfEmpty();
         });
-        titleDiv.appendChild(closeButton);
+        if (!isWindow) {
+            titleDiv.appendChild(closeButton);
+            titleDiv.appendChild(openWindow);
+        }
         mainDiv.appendChild(titleDiv);
 
         const fieldsDiv = document.createElement('div');
@@ -72,12 +86,17 @@ export class ObjectInspector {
         ObjectInspector.objectInspectorId.prepend(mainDiv);
         mainDiv.scrollIntoView();
 
-        ObjectInspector.objectInspectorId.prepend(Window.newWindow(mainDiv));
+        if (isWindow) {
+            ObjectInspector.objectInspectorId.prepend(Window.newWindow("Object Inspector", mainDiv,
+                () => {
+                    ObjectInspector.add(objectValue);
+                }));
+        }
     }
 
     static clear() {
         ObjectInspector.objectInspectorId.innerHTML = '';
-        this.update(undefined);
+        this.add(undefined);
     }
 
     static remove(child) {
@@ -105,16 +124,20 @@ export class ObjectInspector {
     }
 
     static createFieldStateDiv(states, objectValue, currentField) {
-        let fieldStates = states.map(node => node.fields)
-        fieldStates = fieldStates.map(fields => fields.find(f => f.identifier.name === currentField[0]));
-        console.log(fieldStates);
+        console.log(states);
+        let objectStates = states.stateDictionary.get(objectValue.pointer);
+        let fieldStates = objectStates.map(objectVal => objectVal.fields);
+        console.log([...fieldStates]);
+        fieldStates = fieldStates.map(fields => fields.find(f => f[0] === currentField[0]));
+        console.log([...fieldStates]);
         const div = document.createElement('div');
         for (let f of fieldStates) {
-            if (f instanceof ObjectValue) {
-                div.appendChild(f.documentFragment());
+            if (f[1] instanceof PrimitiveValue) {
+                div.appendChild(document.createTextNode(f[1].value));
             } else {
-                div.appendChild(document.createTextNode(f.value.value));
+                div.appendChild(f[1].documentFragment());
             }
+            div.append(document.createElement('br'));
         }
 
         return div;

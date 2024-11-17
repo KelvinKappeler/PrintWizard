@@ -1,11 +1,33 @@
+import {ObjectInspector} from "./inspectors/objectInspector.js";
+
 export class Window {
-    static newWindow(mainDiv) {
+    static newWindow(title, mainDiv, minusBehaviour = () => {}) {
 
         const window = document.createElement('div');
         window.classList.add('window');
 
         const titleBar = document.createElement('div');
         titleBar.classList.add('headerWindow');
+        titleBar.appendChild(document.createTextNode(title));
+        const closeButton = document.createElement('i');
+        closeButton.classList.add('bi');
+        closeButton.classList.add('bi-x');
+        closeButton.classList.add('closeButton');
+        closeButton.addEventListener('click', () => {
+            window.remove();
+            ObjectInspector.checkIfEmpty();
+        });
+
+        const minusButton = document.createElement('i');
+        minusButton.classList.add('bi');
+        minusButton.classList.add('bi-window-dash');
+        minusButton.classList.add('closeButton');
+        minusButton.addEventListener('click', () => {
+            minusBehaviour();
+            window.remove();
+        });
+        titleBar.appendChild(minusButton);
+        titleBar.appendChild(closeButton);
 
         window.append(titleBar);
         window.append(mainDiv);

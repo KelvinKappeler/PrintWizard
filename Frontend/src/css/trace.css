@@ -70,6 +70,10 @@
     cursor: pointer;
 }
 
+.returnValuePrimitive {
+    color: #af4b4b;
+}
+
 .argsValue {
     border: 1px solid #4baf4b;
 }
@@ -77,6 +81,10 @@
 .argsValue:hover {
     background-color: #4baf4b;
     cursor: pointer;
+}
+
+.argsValuePrimitive {
+    color: #4baf4b;
 }
 
 .keywords {
