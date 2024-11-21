@@ -1,5 +1,5 @@
 import {ObjectValue, PrimitiveValue} from "../def.js";
-import {createTriangle, toggleTriangle} from "../triangle.js";
+import {Triangle} from "../triangle.js";
 import {Window} from "../window.js";
 
 export class ObjectInspector {
@@ -13,13 +13,13 @@ export class ObjectInspector {
         const mainDiv = document.createElement('div');
         mainDiv.classList.add('objectInspectorPanel');
 
+        const fieldsDiv = document.createElement('div');
+        fieldsDiv.classList.add('fieldsDiv');
+
         const titleDiv = document.createElement('div');
-        const triangle = createTriangle();
-        triangle.classList.add('triangleObjectInspector');
-        triangle.addEventListener('click', () => {
-           toggleTriangle(triangle, [fieldsDiv]);
-        });
-        titleDiv.appendChild(triangle);
+        const triangle = new Triangle([fieldsDiv]);
+        triangle.triangle.classList.add('triangleObjectInspector');
+        triangle.attachTo(titleDiv);
         titleDiv.appendChild(document.createTextNode(
             objectValue.dataType + ": $" + objectValue.pointer + " (v" + objectValue.version + ")"
         ));
@@ -47,22 +47,15 @@ export class ObjectInspector {
         }
         mainDiv.appendChild(titleDiv);
 
-        const fieldsDiv = document.createElement('div');
-        fieldsDiv.classList.add('fieldsDiv');
-
         for (let i = 0; i < objectValue.fields.length; i++) {
             const field = objectValue.fields[i];
             const fieldDiv = document.createElement('div');
 
             const statesDiv = ObjectInspector.createFieldStateDiv(objectValue.states, objectValue, field);
 
-            const fieldTriangle = createTriangle();
-            fieldTriangle.addEventListener('click', () => {
-                toggleTriangle(fieldTriangle, [statesDiv]);
-            });
-            toggleTriangle(fieldTriangle, [statesDiv]);
-            fieldTriangle.classList.add('triangleFields');
-            fieldDiv.appendChild(fieldTriangle)
+            const fieldTriangle = new Triangle([statesDiv]);
+            fieldTriangle.triangle.classList.add('triangleFields');
+            fieldTriangle.attachTo(fieldDiv);
             fieldDiv.classList.add('fieldDiv');
             fieldDiv.appendChild(document.createTextNode(field[1].dataType + " " + field[0] + ": "));
             if (field[1] instanceof ObjectValue) {

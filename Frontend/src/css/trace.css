@@ -2,17 +2,18 @@
     padding: 20px;
     background-color: #1e1f22;
     color: #cbcbcbff;
-    overflow-y: auto;
-    overflow-x: auto;
+    /* overflow-y: auto; */
+    /* overflow-x: auto; */
     font-size: 18px;
     display: flex;
     line-height: 1.4;
-    height: 90%;
-    width: 96%;
+    /* height: 90%; */
+    width: auto;
 }
 
 .trace {
     flex: 0.7;
+    overflow-x: auto;
 }
 
 .lineNumbers {

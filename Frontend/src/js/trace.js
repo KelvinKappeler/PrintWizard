@@ -1,4 +1,4 @@
-import {createTriangle, foldTriangle, toggleTriangle} from "./triangle.js";
+import {Triangle} from "./triangle.js";
 
 export class Trace {
     static lineNumbersArea = document.querySelector('.lineNumbers');
@@ -72,15 +72,8 @@ export class Trace {
         lastBlock.traceContent.appendChild(document.createElement('br'));
 
         if (newBlock) {
-            let triangle = createTriangle();
-            lastBlock.triangles.appendChild(triangle);
-            triangle.addEventListener('click', () => {
-                toggleTriangle(triangle, [newBlock.linesNumber, newBlock.traceContent, newBlock.triangles]);
-            });
-
-            if (isNewBlockHidden) {
-                foldTriangle(triangle,[newBlock.linesNumber, newBlock.traceContent, newBlock.triangles]);
-            }
+            let triangle = new Triangle([newBlock.linesNumber, newBlock.traceContent, newBlock.triangles], isNewBlockHidden);
+            triangle.attachTo(lastBlock.triangles);
         }
         lastBlock.triangles.appendChild(document.createElement('br'));
 

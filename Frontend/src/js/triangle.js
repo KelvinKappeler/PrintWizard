@@ -1,28 +1,57 @@
-const iconFold = "bi-chevron-down";
-const iconExpanded = "bi-chevron-right";
+/**
+ * This class is used to create a triangle element that can be used to toggle the visibility of a DOM element.
+ */
+export class Triangle {
+    static iconFold = "bi-chevron-down";
+    static iconExpanded = "bi-chevron-right";
 
-export function createTriangle() {
-    let triangle = document.createElement('i');
-    triangle.classList.add('bi');
-    triangle.classList.add(iconFold);
-    return triangle;
-}
-
-export function toggleTriangle(triangle, divsToToggle) {
-    if (triangle.classList.contains(iconFold)) {
-        foldTriangle(triangle, divsToToggle);
+    /**
+     * Creates a new triangle element that can be used to toggle the visibility of a DOM element.
+     * @param elementsToToggle The elements to toggle the visibility of.
+     * @param isCollapse Whether the elements are initially expanded or not.
+     */
+    constructor(elementsToToggle, isCollapse = false) {
+        this.elementsToToggle = elementsToToggle;
+        this.isCollapse = !isCollapse;
+        this.triangle = document.createElement('i');
+        this.triangle.classList.add('bi');
+        this.triangle.addEventListener('click', () => this.toggle());
+        this.toggle();
     }
-    else {
-        triangle.classList.remove(iconExpanded);
-        triangle.classList.add(iconFold);
 
-        divsToToggle.forEach(div => div.classList.remove('hidden'));
+    /**
+     * Expands the elements and changes the triangle icon.
+     */
+    expand() {
+        this.triangle.classList.remove(Triangle.iconFold);
+        this.triangle.classList.add(Triangle.iconExpanded);
+        this.elementsToToggle.forEach(element => element.classList.add('hidden'));
+        this.isCollapse = true;
     }
-}
 
-export function foldTriangle(triangle, divsToToggle) {
-    triangle.classList.remove(iconFold);
-    triangle.classList.add(iconExpanded);
+    /**
+     * Collapses the elements and changes the triangle icon.
+     */
+    collapse() {
+        this.triangle.classList.remove(Triangle.iconExpanded);
+        this.triangle.classList.add(Triangle.iconFold);
+        this.elementsToToggle.forEach(element => element.classList.remove('hidden'));
+        this.isCollapse = false;
+    }
 
-    divsToToggle.forEach(div => div.classList.add('hidden'));
+    /**
+     * Toggles the visibility of the elements and changes the triangle icon.
+     */
+    toggle() {
+        this.isCollapse ? this.collapse() : this.expand();
+        console.log(this.isCollapse);
+    }
+
+    /**
+     * Attaches the triangle to a parent element.
+     * @param parent The parent element to attach the triangle to.
+     */
+    attachTo(parent) {
+        parent.appendChild(this.triangle);
+    }
 }
