@@ -1,3 +1,5 @@
+import {Preconditions} from "./utils/Preconditions.js";
+
 /**
  * This class is used to create a triangle element that can be used to toggle the visibility of a DOM element.
  */
@@ -11,6 +13,9 @@ export class Triangle {
      * @param isCollapse Whether the elements are initially expanded or not.
      */
     constructor(elementsToToggle, isCollapse = false) {
+        Preconditions.checkArrayOfTypes(elementsToToggle, Node);
+        Preconditions.checkIfBoolean(isCollapse);
+
         this.elementsToToggle = elementsToToggle;
         this.isCollapse = !isCollapse;
         this.triangle = document.createElement('i');
@@ -44,7 +49,6 @@ export class Triangle {
      */
     toggle() {
         this.isCollapse ? this.collapse() : this.expand();
-        console.log(this.isCollapse);
     }
 
     /**
@@ -52,6 +56,7 @@ export class Triangle {
      * @param parent The parent element to attach the triangle to.
      */
     attachTo(parent) {
+        Preconditions.checkType(parent, Node);
         parent.appendChild(this.triangle);
     }
 }
