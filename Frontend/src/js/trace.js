@@ -1,5 +1,8 @@
 import {Triangle} from "./Elements/Triangle.js";
 
+/**
+ * This class is used to show the trace of the program execution.
+ */
 export class Trace {
     static lineNumbersArea = document.querySelector('.lineNumbers');
     static trianglesArea = document.querySelector('.traceTriangles');
@@ -10,9 +13,9 @@ export class Trace {
         this.treeTrace = treeTrace;
 
         this.blockStack = [new StackFragment(
-            document.createDocumentFragment(),
-            document.createDocumentFragment(),
-            document.createDocumentFragment())
+            document.createElement('div'),
+            document.createElement('div'),
+            document.createElement('div'))
         ];
     }
 

@@ -1,5 +1,5 @@
 import {Breadcrumb} from "./Elements/Breadcrumb.js";
-import {JsonData} from "./json/jsonData.js";
+import {JsonData} from "./json/JsonData.js";
 import {translateToTreeFormat} from "./jsonTranslate.js";
 import {Trace} from "./trace.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
@@ -12,6 +12,7 @@ export class PrintWizard {
     constructor() {
         this.breadcrumb = new Breadcrumb();
         this.breadcrumb.attachTo(document.querySelector('.breadcrumb'));
+        this.jsonData = undefined;
     }
 
     /**
@@ -22,7 +23,8 @@ export class PrintWizard {
         Preconditions.checkIfString(location);
 
         console.clear();
-        JsonData.withLocation(location).getAllData().then(data => {
+        this.jsonData = new JsonData(location);
+        this.jsonData.getAllData().then(data => {
             const finalTreeTrace = translateToTreeFormat(data[2], data[0], data[1]);
             console.log(finalTreeTrace);
             const trace = new Trace(finalTreeTrace);

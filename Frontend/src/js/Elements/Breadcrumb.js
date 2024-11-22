@@ -16,7 +16,7 @@ export class Breadcrumb extends PWElement {
 
     /**
      * Adds a new entry to the breadcrumb list
-     * @param entry The entry to add (string)
+     * @param entry {string} The entry to add
      */
     add(entry) {
         Preconditions.checkIfString(entry);

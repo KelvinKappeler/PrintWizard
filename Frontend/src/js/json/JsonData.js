@@ -1,15 +1,23 @@
 import {SourceFormat} from "./sourceFormat.js";
 import {ObjectData} from "./objectData.js";
 import {Trace} from "./eventTrace.js";
+import {Preconditions} from "../utils/Preconditions.js";
 
+/**
+ * This class contains the data from the json files of the backend.
+ */
 export class JsonData {
     static sourceFormatFile = "source_format.json";
     static objectDataFile = "objectData.json";
     static traceFile = "eventTrace.json";
 
-    static jsonData = new JsonData("../");
-
+    /**
+     * Creates a new JsonData object.
+     * @param location {string} The location of the json files.
+     */
     constructor(location) {
+        Preconditions.checkIfString(location);
+
         this.sourceFormat = fetch(location + JsonData.sourceFormatFile)
             .then(response => response.json())
             .then(data => { return new SourceFormat(data) });
@@ -23,16 +31,11 @@ export class JsonData {
             .then(data => { return new Trace(data) });
     }
 
+    /**
+     * Returns all data from the json files.
+     * @returns {Promise<[]>} A promise that resolves to an array containing the source format, object data and event trace.
+     */
     getAllData() {
         return Promise.all([this.sourceFormat, this.objectData, this.eventTrace]);
     }
-
-    static withLocation(location) {
-        JsonData.jsonData = new JsonData(location)
-        return JsonData.jsonData;
-    }
 }
-
-//JsonData.jsonData.sourceFormat.then(data => console.log(data));
-//JsonData.jsonData.objectData.then(data => console.log(data));
-//JsonData.jsonData.eventTrace.then(data => console.log(data));

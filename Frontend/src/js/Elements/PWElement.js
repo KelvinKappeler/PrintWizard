@@ -7,19 +7,19 @@ export class PWElement {
 
     /**
      * Creates a new element.
-     * @param element The DOM element to create.
+     * @param element {Element} The DOM element to create.
      */
     constructor(element) {
-        Preconditions.checkType(element, Node);
+        Preconditions.checkType(element, Element);
         this.element = element;
     }
 
     /**
      * Attaches the triangle to a parent element.
-     * @param parent The parent element to attach the triangle to.
+     * @param parent {Element} The parent element to attach the triangle to.
      */
     attachTo(parent) {
-        Preconditions.checkType(parent, Node);
+        Preconditions.checkType(parent, Element);
         parent.appendChild(this.element);
     }
 }

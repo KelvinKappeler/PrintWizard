@@ -10,8 +10,8 @@ export class Triangle extends PWElement {
 
     /**
      * Creates a new triangle element that can be used to toggle the visibility of a DOM element.
-     * @param elementsToToggle The elements to toggle the visibility of.
-     * @param isCollapse Whether the elements are initially expanded or not.
+     * @param elementsToToggle {Node[]} The elements to toggle.
+     * @param isCollapse {Boolean} Whether the elements are initially expanded or not.
      */
     constructor(elementsToToggle, isCollapse = false) {
         Preconditions.checkArrayOfTypes(elementsToToggle, Node);
