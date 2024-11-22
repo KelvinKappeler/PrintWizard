@@ -60,15 +60,15 @@
     <div class="dropdown">
         <button class="dropdownButton">Examples <i class="bi bi-chevron-down"></i></button>
         <div class="dropdownContent">
-            <a href="#" onclick="loadData('../Data/BasicOperation/');">Basic Operations</a>
-            <a href="#" onclick="loadData('../Data/Functions/');">Functions</a>
-            <a href="#" onclick="loadData('../Data/ExternalFunctions/');">External Functions</a>
-            <a href="#" onclick="loadData('../Data/Conditions/');">Conditions</a>
-            <a href="#" onclick="loadData('../Data/Loops/');">Loops</a>
-            <a href="#" onclick="loadData('../Data/ObjectFieldsModif/');">Objects</a>
-            <a href="#" onclick="loadData('../Data/ImmutableObjects/');">Immutable Objects</a>
-            <a href="#" onclick="loadData('../Data/Arrays/');">Arrays</a>
-            <a href="#" onclick="loadData('../Data/Boids/');">Boids</a>
+            <a href="#" onclick="pw.loadData('../Data/BasicOperation/');">Basic Operations</a>
+            <a href="#" onclick="pw.loadData('../Data/Functions/');">Functions</a>
+            <a href="#" onclick="pw.loadData('../Data/ExternalFunctions/');">External Functions</a>
+            <a href="#" onclick="pw.loadData('../Data/Conditions/');">Conditions</a>
+            <a href="#" onclick="pw.loadData('../Data/Loops/');">Loops</a>
+            <a href="#" onclick="pw.loadData('../Data/ObjectFieldsModif/');">Objects</a>
+            <a href="#" onclick="pw.loadData('../Data/ImmutableObjects/');">Immutable Objects</a>
+            <a href="#" onclick="pw.loadData('../Data/Arrays/');">Arrays</a>
+            <a href="#" onclick="pw.loadData('../Data/Boids/');">Boids</a>
         </div>
     </div>
     <a href="#">Settings</a>
@@ -79,7 +79,7 @@
 
 <main>
     <div class="trace">
-        <ul class="breadcrumb"></ul>
+        <div class="breadcrumb"></div>
         <div class="traceBody">
             <div class="lineNumbers"></div>
             <div class="traceTriangles"></div>
@@ -178,17 +178,10 @@
 
 </script>
 <script type="module">
-    import { loadData } from './src/js/main.js';
-    window.loadData = loadData;
+    import { pw } from './src/js/Main.js';
+    window.pw = pw;
 </script>
-<!--<script type="module" src="src/js/def.js"></script>
-<script type="module" src="src/js/triangle.js"></script>
-<script type="module" src="src/js/breadcrumb.js"></script>
-<script type="module" src="src/js/trace.js"></script>
-<script type="module" src="src/js/jsonTranslate.js"></script>
-<script type="module" src="src/js/json/jsonData.js"></script>
-<script type="module" src="displayTrace"></script>!-->
-<script type="module" src="src/js/main.js"></script>
+<script type="module" src="src/js/Main.js"></script>
 </body>
 
 </html>

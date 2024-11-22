@@ -1,4 +1,4 @@
-import {Triangle} from "./triangle.js";
+import {Triangle} from "./Elements/Triangle.js";
 
 export class Trace {
     static lineNumbersArea = document.querySelector('.lineNumbers');

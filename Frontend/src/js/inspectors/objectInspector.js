@@ -1,5 +1,5 @@
 import {ObjectValue, PrimitiveValue} from "../def.js";
-import {Triangle} from "../triangle.js";
+import {Triangle} from "../Elements/Triangle.js";
 import {Window} from "../window.js";
 
 export class ObjectInspector {
@@ -18,7 +18,7 @@ export class ObjectInspector {
 
         const titleDiv = document.createElement('div');
         const triangle = new Triangle([fieldsDiv]);
-        triangle.triangle.classList.add('triangleObjectInspector');
+        triangle.element.classList.add('triangleObjectInspector');
         triangle.attachTo(titleDiv);
         titleDiv.appendChild(document.createTextNode(
             objectValue.dataType + ": $" + objectValue.pointer + " (v" + objectValue.version + ")"
@@ -54,7 +54,7 @@ export class ObjectInspector {
             const statesDiv = ObjectInspector.createFieldStateDiv(objectValue.states, objectValue, field);
 
             const fieldTriangle = new Triangle([statesDiv]);
-            fieldTriangle.triangle.classList.add('triangleFields');
+            fieldTriangle.element.classList.add('triangleFields');
             fieldTriangle.attachTo(fieldDiv);
             fieldDiv.classList.add('fieldDiv');
             fieldDiv.appendChild(document.createTextNode(field[1].dataType + " " + field[0] + ": "));

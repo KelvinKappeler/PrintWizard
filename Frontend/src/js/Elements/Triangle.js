@@ -1,9 +1,10 @@
-import {Preconditions} from "./utils/Preconditions.js";
+import {Preconditions} from "../utils/Preconditions.js";
+import {PWElement} from "./PWElement.js";
 
 /**
  * This class is used to create a triangle element that can be used to toggle the visibility of a DOM element.
  */
-export class Triangle {
+export class Triangle extends PWElement {
     static iconFold = "bi-chevron-down";
     static iconExpanded = "bi-chevron-right";
 
@@ -16,11 +17,13 @@ export class Triangle {
         Preconditions.checkArrayOfTypes(elementsToToggle, Node);
         Preconditions.checkIfBoolean(isCollapse);
 
+        const element = document.createElement('i');
+        element.classList.add('bi');
+        element.addEventListener('click', () => this.toggle());
+        super(element);
+
         this.elementsToToggle = elementsToToggle;
         this.isCollapse = !isCollapse;
-        this.triangle = document.createElement('i');
-        this.triangle.classList.add('bi');
-        this.triangle.addEventListener('click', () => this.toggle());
         this.toggle();
     }
 
@@ -28,8 +31,8 @@ export class Triangle {
      * Expands the elements and changes the triangle icon.
      */
     expand() {
-        this.triangle.classList.remove(Triangle.iconFold);
-        this.triangle.classList.add(Triangle.iconExpanded);
+        this.element.classList.remove(Triangle.iconFold);
+        this.element.classList.add(Triangle.iconExpanded);
         this.elementsToToggle.forEach(element => element.classList.add('hidden'));
         this.isCollapse = true;
     }
@@ -38,8 +41,8 @@ export class Triangle {
      * Collapses the elements and changes the triangle icon.
      */
     collapse() {
-        this.triangle.classList.remove(Triangle.iconExpanded);
-        this.triangle.classList.add(Triangle.iconFold);
+        this.element.classList.remove(Triangle.iconExpanded);
+        this.element.classList.add(Triangle.iconFold);
         this.elementsToToggle.forEach(element => element.classList.remove('hidden'));
         this.isCollapse = false;
     }
@@ -49,14 +52,5 @@ export class Triangle {
      */
     toggle() {
         this.isCollapse ? this.collapse() : this.expand();
-    }
-
-    /**
-     * Attaches the triangle to a parent element.
-     * @param parent The parent element to attach the triangle to.
-     */
-    attachTo(parent) {
-        Preconditions.checkType(parent, Node);
-        parent.appendChild(this.triangle);
     }
 }

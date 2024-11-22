@@ -25,6 +25,16 @@ export class Preconditions {
     }
 
     /**
+     * Checks if the given field is a string.
+     * @param string The field to check.
+     */
+    static checkIfString(string) {
+        if (typeof string !== 'string') {
+            throw new Error(`Expected string but got ${typeof string}`);
+        }
+    }
+
+    /**
      * Checks if the given object is an array of the given type.
      * @param array The array to check.
      * @param type The type to check against.
