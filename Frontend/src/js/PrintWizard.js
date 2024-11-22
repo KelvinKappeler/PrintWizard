@@ -31,7 +31,6 @@ export class PrintWizard {
             this.breadcrumb.clear();
             this.breadcrumb.add(data[0].sourceFile.fileName);
             this.breadcrumb.add(finalTreeTrace.name + "()");
-            this.breadcrumb.attachTo(document.querySelector('.breadcrumb'))
 
             ObjectInspector.clear();
         });
