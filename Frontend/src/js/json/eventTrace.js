@@ -8,10 +8,6 @@ export class Trace {
             }
         });
     }
-
-    sliceFirst() {
-        return new Trace({ trace: this.trace.slice(1) });
-    }
 }
 
 export class Event {

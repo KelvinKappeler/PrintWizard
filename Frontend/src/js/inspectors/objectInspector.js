@@ -58,10 +58,10 @@ export class ObjectInspector {
             fieldTriangle.attachTo(fieldDiv);
             fieldDiv.classList.add('fieldDiv');
             fieldDiv.appendChild(document.createTextNode(field[1].dataType + " " + field[0] + ": "));
-            if (field[1] instanceof ObjectValue) {
-                fieldDiv.appendChild(field[1].documentFragment());
-            } else {
+            if (field[1] instanceof PrimitiveValue) {
                 fieldDiv.appendChild(document.createTextNode(field[1].value));
+            } else {
+                fieldDiv.appendChild(field[1].documentFragment());
             }
 
             fieldDiv.appendChild(statesDiv);
@@ -117,22 +117,37 @@ export class ObjectInspector {
     }
 
     static createFieldStateDiv(states, objectValue, currentField) {
-        console.log(states);
         let objectStates = states.stateDictionary.get(objectValue.pointer);
-        let fieldStates = objectStates.map(objectVal => objectVal.fields);
-        console.log([...fieldStates]);
-        fieldStates = fieldStates.map(fields => fields.find(f => f[0] === currentField[0]));
-        console.log([...fieldStates]);
-        const div = document.createElement('div');
+        let fieldStates = objectStates.map(objectVal => [objectVal, objectVal.fields.find(f => f[0] === currentField[0])[1]]);
+        const currentVersion = states.getLastVersion(objectValue.pointer, objectValue.version).self.version;
+
+        const mainDiv = document.createElement('div');
+        let lastValue = undefined;
         for (let f of fieldStates) {
-            if (f[1] instanceof PrimitiveValue) {
-                div.appendChild(document.createTextNode(f[1].value));
+            const div = document.createElement('div');
+            const obj = f[0];
+            const value = f[1];
+
+            console.log(f);
+
+            if (value instanceof PrimitiveValue) {
+                if (value.value === lastValue) continue;
+                div.append(document.createTextNode(value.value));
+                lastValue = value.value;
             } else {
-                div.appendChild(f[1].documentFragment());
+                if (lastValue !== undefined && value.fields === lastValue.fields) continue;
+                div.append(value.documentFragment());
+                lastValue = value;
             }
+            if (currentVersion === obj.version) {
+                div.append(document.createTextNode(" (current)"));
+            }
+            div.append(document.createTextNode(" | v" + obj.version + " | "));
+            div.append(obj.documentFragment());
             div.append(document.createElement('br'));
+            mainDiv.append(div);
         }
 
-        return div;
+        return mainDiv;
     }
 }

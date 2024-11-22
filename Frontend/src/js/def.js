@@ -160,12 +160,12 @@ export class Value {
     static newFieldsValue(fields, objectData) {
         return fields.map(field => {
             if (field.value.dataType === 'instanceRef') {
-                return [field.identifier.name, new ObjectValue(
+                return [field.identifier.name, new ObjectPointer(
                     field.value.className.className,
                     field.value.pointer,
                     field.value.version,
-                    Value.newFieldsValue(objectData.getLastVersion(field.value.pointer, field.value.version).fields, objectData),
-                    objectData)];
+                    objectData
+                )];
             } else if (field.value.dataType === 'arrayRef') {
                 return [field.identifier.name, new ArrayValue(
                     field.value.elemType,
@@ -225,6 +225,28 @@ export class ObjectValue extends Value {
         });
         df.appendChild(span);
         return df;
+    }
+}
+
+export class ObjectPointer extends Value {
+    constructor(dataType = "", pointer = null, version = 0, states = []) {
+        super(dataType);
+        this.pointer = pointer;
+        this.version = version;
+        this.states = states;
+    }
+
+    getObjValue(objectData) {
+        return new ObjectValue(
+            this.dataType,
+            this.pointer,
+            this.version,
+            Value.newFieldsValue(objectData.getLastVersion(this.pointer, this.version).fields, objectData),
+            this.states);
+    }
+
+    documentFragment(traceSpanType = TraceSpanType.ReturnValue) {
+        return this.getObjValue(this.states).documentFragment(traceSpanType);
     }
 }
 

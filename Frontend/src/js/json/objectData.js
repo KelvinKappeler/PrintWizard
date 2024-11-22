@@ -25,7 +25,7 @@ export class ObjectData {
         for (const pointer of uniquePointers) {
             let objectStates = this.objectData.filter(node => node.self.pointer === pointer);
             objectStates.sort((a, b) => a.self.version - b.self.version);
-            objectStates = objectStates.map(node => new ObjectValue(node.self.dataType, node.self.pointer, node.self.version, Value.newFieldsValue(node.fields, this), this));
+            objectStates = objectStates.map(node => new ObjectValue(node.self.className.className, node.self.pointer, node.self.version, Value.newFieldsValue(node.fields, this), this));
             stateDictionary.set(pointer, objectStates);
         }
 
