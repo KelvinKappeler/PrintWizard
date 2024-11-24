@@ -1,4 +1,5 @@
 import {Triangle} from "./Elements/Triangle.js";
+import {FullTraceTriangle} from "./Elements/FullTraceTriangle.js";
 
 /**
  * This class is used to show the trace of the program execution.
@@ -17,6 +18,8 @@ export class Trace {
             document.createElement('div'),
             document.createElement('div'))
         ];
+
+        this.triangles = [];
     }
 
     /**
@@ -37,7 +40,11 @@ export class Trace {
 
         this.treeTrace.append(this);
 
-        Trace.lineNumbersArea.appendChild(this.blockStack[0].linesNumber);
+        const lineNumbers = this.blockStack[0].linesNumber;
+        const fullTriangle = new FullTraceTriangle(this.triangles);
+
+        fullTriangle.attachTo(lineNumbers, false);
+        Trace.lineNumbersArea.appendChild(lineNumbers);
         Trace.trianglesArea.appendChild(this.blockStack[0].triangles);
         Trace.traceContentArea.appendChild(this.blockStack[0].traceContent);
     }
@@ -100,9 +107,14 @@ export class Trace {
         if (newBlock) {
             let triangle = new Triangle([newBlock.linesNumber, newBlock.traceContent, newBlock.triangles], isNewBlockHidden);
             triangle.attachTo(lastBlock.triangles);
+            this.triangles.push(triangle);
         }
         lastBlock.triangles.appendChild(document.createElement('br'));
 
+    }
+
+    getTraceElementWithObjectValue(objectValue) {
+        return this.treeTrace.searchObject(objectValue);
     }
 }
 

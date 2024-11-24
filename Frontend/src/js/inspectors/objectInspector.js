@@ -1,16 +1,27 @@
-import {ObjectValue, PrimitiveValue} from "../def.js";
+import {PrimitiveValue} from "../def.js";
 import {Triangle} from "../Elements/Triangle.js";
 import {Window} from "../window.js";
-import {Trace} from "../Trace.js";
+import {PWElement} from "../Elements/PWElement.js";
 
-export class ObjectInspector {
-    static objectInspectorId = document.getElementById('objectInspector');
+export class ObjectInspector extends PWElement {
 
-    static add(objectValue, isWindow = false) {
-        if (ObjectInspector.checkIfEmpty()) {
-            return;
+    static instance = undefined;
+
+    constructor() {
+        const element = document.createElement('div');
+        element.classList.add('inspectorContent');
+        element.id = 'objectInspector';
+        super(element);
+        this.checkIfEmpty();
+
+        if (ObjectInspector.instance === undefined) {
+            ObjectInspector.instance = this;
+        } else {
+            throw new Error("Only one instance of ObjectInspector is allowed");
         }
+    }
 
+    add(objectValue, isWindow = false) {
         const mainDiv = document.createElement('div');
         mainDiv.classList.add('objectInspectorPanel');
 
@@ -30,8 +41,8 @@ export class ObjectInspector {
         openWindow.classList.add('bi-window-plus');
         openWindow.classList.add('closeButton');
         openWindow.addEventListener('click', () => {
-            ObjectInspector.add(objectValue, true);
-            ObjectInspector.remove(mainDiv);
+            this.add(objectValue, true);
+            this.remove(mainDiv);
         });
 
         const closeButton = document.createElement('i');
@@ -39,8 +50,7 @@ export class ObjectInspector {
         closeButton.classList.add('bi-x');
         closeButton.classList.add('closeButton');
         closeButton.addEventListener('click', () => {
-            ObjectInspector.remove(mainDiv);
-            ObjectInspector.checkIfEmpty();
+            this.remove(mainDiv);
         });
         if (!isWindow) {
             titleDiv.appendChild(closeButton);
@@ -52,7 +62,7 @@ export class ObjectInspector {
             const field = objectValue.fields[i];
             const fieldDiv = document.createElement('div');
 
-            const statesDiv = ObjectInspector.createFieldStateDiv(objectValue.states, objectValue, field);
+            const statesDiv = this.createFieldStateDiv(objectValue.states, objectValue, field);
 
             const fieldTriangle = new Triangle([statesDiv]);
             fieldTriangle.element.classList.add('triangleFields');
@@ -77,24 +87,26 @@ export class ObjectInspector {
 
         mainDiv.appendChild(fieldsDiv);
 
-        ObjectInspector.objectInspectorId.prepend(mainDiv);
+        this.element.prepend(mainDiv);
         mainDiv.scrollIntoView();
+        this.checkIfEmpty();
 
         if (isWindow) {
-            ObjectInspector.objectInspectorId.prepend(Window.newWindow("Object Inspector", mainDiv,
+            this.element.prepend(Window.newWindow("Object Inspector", mainDiv,
                 () => {
-                    ObjectInspector.add(objectValue);
+                    this.add(objectValue);
                 }));
         }
     }
 
-    static clear() {
-        ObjectInspector.objectInspectorId.innerHTML = '';
-        this.add(undefined);
+    clear() {
+        this.element.innerHTML = '';
+        this.checkIfEmpty();
     }
 
-    static remove(child) {
-        ObjectInspector.objectInspectorId.removeChild(child);
+    remove(child) {
+        this.element.removeChild(child);
+        this.checkIfEmpty();
     }
 
     static createEmptyState() {
@@ -104,20 +116,18 @@ export class ObjectInspector {
         return div;
     }
 
-    static checkIfEmpty() {
-        if (ObjectInspector.objectInspectorId.childElementCount === 0) {
-            ObjectInspector.objectInspectorId.append(ObjectInspector.createEmptyState());
+    checkIfEmpty() {
+        if (this.element.childElementCount === 0) {
+            this.element.append(ObjectInspector.createEmptyState());
             return true;
         }
 
-        const emptyDiv = document.getElementById('objectInspectorEmpty');
-        if (emptyDiv) {
-            ObjectInspector.objectInspectorId.removeChild(emptyDiv);
-        }
+        document.getElementById('objectInspectorEmpty')?.remove();
+
         return false;
     }
 
-    static createFieldStateDiv(states, objectValue, currentField) {
+    createFieldStateDiv(states, objectValue, currentField) {
         let objectStates = states.stateDictionary.get(objectValue.pointer);
         let fieldStates = objectStates.map(objectVal => [objectVal, objectVal.fields.find(f => f[0] === currentField[0])[1]]);
         const currentVersion = states.getLastVersion(objectValue.pointer, objectValue.version).self.version;
@@ -151,7 +161,18 @@ export class ObjectInspector {
             viewInTrace.innerHTML = '<i class="bi bi-search"></i>'; // Add the icon (using Bootstrap icons)
 
             viewInTrace.addEventListener('click', () => {
-                console.log('Inspect button clicked for object:', obj);
+                const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+                traceElement.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            viewInTrace.addEventListener('mouseenter', () => {
+                const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+                traceElement.element.style.backgroundColor = 'rgba(147,74,172,0.5)';
+            });
+
+            viewInTrace.addEventListener('mouseleave', () => {
+                const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+                traceElement.element.style.backgroundColor = '';
             });
 
             div.append(viewInTrace);

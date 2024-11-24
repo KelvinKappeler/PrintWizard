@@ -5,9 +5,12 @@ class TraceElement {
     constructor(lineNumber, content) {
         this.lineNumber = lineNumber;
         this.content = content;
+        this.element = undefined;
     }
 
     append(trace) {}
+
+    searchObject(objectValue) {}
 }
 
 export class StatementTrace extends TraceElement {
@@ -17,7 +20,7 @@ export class StatementTrace extends TraceElement {
     }
 
     append(trace) {
-        const lineFragment = document.createDocumentFragment();
+        const lineFragment = document.createElement('span');
         lineFragment.appendChild(TraceSpan.wrapKeywords(this.line));
         trace.createBlock(this.lineNumber, lineFragment, true);
 
@@ -26,6 +29,20 @@ export class StatementTrace extends TraceElement {
         }
 
         trace.closeBlock();
+
+        this.element = lineFragment;
+    }
+
+    searchObject(objectValue) {
+        const elements = []
+        for (let traceElem of this.content) {
+            const res = traceElem.searchObject(objectValue);
+            if (res) {
+                elements.push(res);
+            }
+        }
+        if (elements.length === 0) return undefined;
+        return elements.reduce((prev, curr) => prev[1] < curr[1] ? prev : curr);
     }
 }
 
@@ -37,7 +54,7 @@ export class ExpressionTrace extends TraceElement {
     }
 
     append(trace) {
-        const contentFragment = document.createDocumentFragment();
+        const contentFragment = document.createElement('span');
         contentFragment.appendChild(TraceSpan.wrapKeywords(this.content));
 
         if (this.result) {
@@ -48,6 +65,19 @@ export class ExpressionTrace extends TraceElement {
         }
 
         trace.addLine(this.lineNumber, contentFragment);
+        this.element = contentFragment;
+    }
+
+    searchObject(objectValue) {
+        if (this.result instanceof ObjectValue && this.result.isLowerVersion(objectValue)) {
+            return [this, this.result.version];
+        }
+
+        for (let assign of this.assigns) {
+            if (assign[0] instanceof ObjectValue && assign[0].isLowerVersion(objectValue)) {
+                return [this, assign[0].version];
+            }
+        }
     }
 }
 
@@ -58,7 +88,7 @@ export class AssignmentExpressionTrace extends TraceElement {
     }
 
     append(trace) {
-        const contentFragment = document.createDocumentFragment();
+        const contentFragment = document.createElement('span');
         this.assigns.forEach((assign, index) => {
             contentFragment.appendChild(document.createTextNode(
                 assign[0].dataType + " " + assign[1] + " := ")
@@ -72,6 +102,15 @@ export class AssignmentExpressionTrace extends TraceElement {
         });
 
         trace.addLine(this.lineNumber, contentFragment);
+        this.element = contentFragment;
+    }
+
+    searchObject(objectValue) {
+        for (let assign of this.assigns) {
+            if (assign[0] instanceof ObjectValue && assign[0].isLowerVersion(objectValue)) {
+                return [this, assign[0].version];
+            }
+        }
     }
 }
 
@@ -88,10 +127,11 @@ export class FunctionTrace extends TraceElement {
     append(trace) {
         const isHidden = trace.blockStack.length > 1;
 
+        const header = this.createHeaderFragment();
         if (this.content.length === 0) {
-            trace.addLine(this.lineNumber, this.createHeaderFragment(), null, isHidden);
+            trace.addLine(this.lineNumber, header, null, isHidden);
         } else {
-            trace.createBlock(this.lineNumber, this.createHeaderFragment(), isHidden);
+            trace.createBlock(this.lineNumber, header, isHidden);
 
             for (let traceElem of this.content) {
                 traceElem.append(trace);
@@ -99,10 +139,11 @@ export class FunctionTrace extends TraceElement {
 
             trace.closeBlock();
         }
+        this.element = header;
     }
 
     createHeaderFragment() {
-        const headerFragment = document.createDocumentFragment();
+        const headerFragment = document.createElement('span');
 
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.FunctionName, this.name));
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, '('));
@@ -125,6 +166,30 @@ export class FunctionTrace extends TraceElement {
         }
 
         return headerFragment;
+    }
+
+    searchObject(objectValue) {
+        const elements = []
+
+        if (this.returnVal instanceof ObjectValue && this.returnVal.isLowerVersion(objectValue)) {
+            elements.push([this, this.returnVal.version]);
+        }
+
+        for (let arg of this.args) {
+            if (arg instanceof ObjectValue && arg.isLowerVersion(objectValue)) {
+                elements.push([this, arg.version]);
+            }
+        }
+
+        for (let traceElem of this.content) {
+            const res = traceElem.searchObject(objectValue);
+            if (res) {
+                elements.push(res);
+            }
+        }
+
+        if (elements.length === 0) return undefined;
+        return elements.reduce((prev, curr) => prev[1] < curr[1] ? prev : curr)
     }
 }
 
@@ -218,13 +283,21 @@ export class ObjectValue extends Value {
         const df = document.createDocumentFragment();
         const span = TraceSpan.createSpan(
             traceSpanType,
-            this.dataType + ": $" + this.pointer
+            this.dataType + ": $" + this.pointer + "   " + this.version
         );
         span.addEventListener('click', () => {
-            ObjectInspector.add(this);
+            ObjectInspector.instance.add(this);
         });
         df.appendChild(span);
         return df;
+    }
+
+    isLowerVersion(object) {
+        if (object instanceof ObjectValue) {
+            return this.pointer === object.pointer && this.version >= object.version;
+        }
+
+        return false;
     }
 }
 

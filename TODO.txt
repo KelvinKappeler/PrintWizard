@@ -1,0 +1,18 @@
+=== IMPLEMENTATIONS ===
+- Open triangles when clicking on a search button in inspector
+- Recognize loop in the trace and display it accordingly
+- Loop inspector
+- State inspector
+- (Dropdown menu for the trace)
+- (Settings menu)
+
+=== CSS ===
+- Horizontal slider in the trace should not take the triangles and line numbers
+- Trace background not fitting text
+- When the trace is very long, the text is not aligned with the line numbers and triangles
+- Other CSS improvements, like field text size in the object inspector
+
+=== Other ===
+- Add documentations
+- Refactor code
+- Report redaction

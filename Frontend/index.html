@@ -89,12 +89,12 @@
 
     <div id="inspector">
         <div class="inspector_tab">
-            <button class="tab_button" onclick="openInspectorTab('objectInspector')">Object</button>
-            <button class="tab_button" onclick="openInspectorTab('stateInspector')">State</button>
-            <button class="tab_button" onclick="openInspectorTab('loopInspector')">Loop</button>
-        </div>
-        <div id="objectInspector" class="inspectorContent">
-        </div>
+            <button class="tab_button" onclick="pw.openInspectorTab('objectInspector')">Object</button>
+            <button class="tab_button" onclick="pw.openInspectorTab('stateInspector')">State</button>
+            <button class="tab_button" onclick="pw.openInspectorTab('loopInspector')">Loop</button>
+        </div><!----
+        <div id="objectInspector" class="-">
+        </div> -->
 
         <div id="stateInspector" class="inspectorContent">
             <h2>General</h2>
@@ -153,30 +153,6 @@
     </div>
 </main>
 
-<script>
-    function openInspectorTab(inspectorName) {
-        let tabs = document.getElementsByClassName("inspectorContent");
-        for (let i = 0; i < tabs.length; i++) {
-            tabs[i].style.display = "none";
-        }
-        document.getElementById(inspectorName).style.display = "block";
-
-        // Remove active class from all buttons
-        let buttons = document.getElementsByClassName("tab_button");
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].classList.remove("active");
-        }
-
-        // Add active class to the clicked button
-        let activeButton = document.querySelector(`button[onclick="openInspectorTab('${inspectorName}')"]`);
-        activeButton.classList.add("active");
-    }
-
-    window.addEventListener('load', function() {
-        openInspectorTab('objectInspector');
-    });
-
-</script>
 <script type="module">
     import { pw } from './src/js/Main.js';
     window.pw = pw;

@@ -13,6 +13,9 @@ export class PrintWizard {
         this.breadcrumb = new Breadcrumb();
         this.breadcrumb.attachTo(document.querySelector('.breadcrumb'));
         this.jsonData = undefined;
+        this.objectInspector = new ObjectInspector();
+        this.objectInspector.attachTo(document.querySelector('#inspector'));
+        this.trace = undefined;
     }
 
     /**
@@ -25,19 +28,36 @@ export class PrintWizard {
         console.clear();
         this.jsonData = new JsonData(location);
         this.jsonData.getAllData().then(data => {
-            //const finalTreeTrace = translateToTreeFormat(data[2], data[0], data[1]);
             const finalTreeTrace = translateToTreeFormat(data[2], data[0], data[1]);
             console.log(finalTreeTrace);
 
-
-            const trace = new Trace(finalTreeTrace);
-            trace.show();
+            this.trace = new Trace(finalTreeTrace);
+            this.trace.show();
 
             this.breadcrumb.clear();
             this.breadcrumb.add(data[0].sourceFile.fileName);
             this.breadcrumb.add(finalTreeTrace.name + "()");
 
-            ObjectInspector.clear();
+            this.openInspectorTab('objectInspector');
+            this.objectInspector.clear();
         });
+    }
+
+    openInspectorTab(inspectorName) {
+        let tabs = document.getElementsByClassName("inspectorContent");
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].style.display = "none";
+        }
+        document.getElementById(inspectorName).style.display = "block";
+
+        // Remove active class from all buttons
+        let buttons = document.getElementsByClassName("tab_button");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove("active");
+        }
+
+        // Add active class to the clicked button
+        let activeButton = document.querySelector(`button[onclick="pw.openInspectorTab('${inspectorName}')"]`);
+        activeButton.classList.add("active");
     }
 }

@@ -17,9 +17,15 @@ export class PWElement {
     /**
      * Attaches the triangle to a parent element.
      * @param parent {Element} The parent element to attach the triangle to.
+     * @param isAppend {Boolean} Whether to append the triangle to the parent element.
      */
-    attachTo(parent) {
+    attachTo(parent, isAppend = true) {
         Preconditions.checkType(parent, Element);
-        parent.appendChild(this.element);
+        Preconditions.checkIfBoolean(isAppend);
+        if (!isAppend) {
+            parent.prepend(this.element);
+        } else {
+            parent.append(this.element);
+        }
     }
 }

@@ -1,13 +1,12 @@
-import {FunctionTrace, StatementTrace, ExpressionTrace, AssignmentExpressionTrace} from "./def.js";
+import {Value, FunctionTrace, StatementTrace, ExpressionTrace, AssignmentExpressionTrace} from "./def.js";
 import {Event, Step} from "./json/eventTrace.js";
-import {Value} from "./def.js";
 
 /**
  * Translates the given trace to a tree format.
- * @param {Object} trace - The trace object to be translated.
- * @param {Object} sourceFormat - The source format containing syntax nodes.
- * @param {Object} objectData - The object data used for value creation.
- * @returns {Object} The translated tree format.
+ * @param {Trace} trace - The trace object to be translated.
+ * @param {SourceFormat} sourceFormat - The source format containing syntax nodes.
+ * @param {ObjectData} objectData - The object data used for value creation.
+ * @returns {TraceElement} The translated tree format.
  */
 export function translateToTreeFormat(trace, sourceFormat, objectData) {
     let dataStack = [];
@@ -35,8 +34,8 @@ export function translateToTreeFormat(trace, sourceFormat, objectData) {
 
 /**
  * Creates a cache of syntax nodes from the source format.
- * @param {Object} sourceFormat - The source format containing syntax nodes.
- * @returns {Map} The cache of syntax nodes.
+ * @param {SourceFormat} sourceFormat - The source format containing syntax nodes.
+ * @returns {Map[String, SyntaxNode]} The cache of syntax nodes.
  */
 function createSyntaxNodeCache(sourceFormat) {
     const syntaxNodeCache = new Map();
@@ -48,8 +47,8 @@ function createSyntaxNodeCache(sourceFormat) {
 
 /**
  * Creates a map of line numbers to syntax nodes from the source format.
- * @param {Object} sourceFormat - The source format containing syntax nodes.
- * @returns {Map} The map of line numbers to syntax nodes.
+ * @param {SourceFormat} sourceFormat - The source format containing syntax nodes.
+ * @returns {Map[int, SyntaxNode]} The map of line numbers to syntax nodes.
  */
 function createLineNumberToSyntaxNodeMap(sourceFormat) {
     const lineNumberToSyntaxNode = new Map();
@@ -63,10 +62,10 @@ function createLineNumberToSyntaxNodeMap(sourceFormat) {
 
 /**
  * Handles an event element in the trace.
- * @param {Object} elem - The event element to handle.
+ * @param {Event} elem - The event element to handle.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} newTrace - The current trace object.
- * @param {Map} lineNumberToSyntaxNode - The map of line numbers to syntax nodes.
+ * @param {Trace} newTrace - The current trace object.
+ * @param {Map[int, SyntaxNode]} lineNumberToSyntaxNode - The map of line numbers to syntax nodes.
  */
 function handleEvent(elem, dataStack, newTrace, lineNumberToSyntaxNode) {
     if (elem.eventType === 'controlFlow' && elem.kind.type === 'FunctionContext') {
@@ -80,7 +79,7 @@ function handleEvent(elem, dataStack, newTrace, lineNumberToSyntaxNode) {
 
 /**
  * Handles a function context event.
- * @param {Object} elem - The function context event element.
+ * @param {Event} elem - The function context event element.
  * @param {Array} dataStack - The stack of data elements.
  */
 function handleFunctionContext(elem, dataStack) {
@@ -105,10 +104,10 @@ function handleFunctionContext(elem, dataStack) {
 
 /**
  * Handles a statement event.
- * @param {Object} elem - The statement event element.
+ * @param {Event} elem - The statement event element.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} newTrace - The current trace object.
- * @param {Map} lineNumberToSyntaxNode - The map of line numbers to syntax nodes.
+ * @param {Trace} newTrace - The current trace object.
+ * @param {Map[int, SyntaxNode]} lineNumberToSyntaxNode - The map of line numbers to syntax nodes.
  */
 function handleStatement(elem, dataStack, newTrace, lineNumberToSyntaxNode) {
     if (elem.pos === 'start') {
@@ -147,11 +146,11 @@ function handleDefaultContextEnd(dataStack, lineNumberToSyntaxNode) {
 
 /**
  * Handles a step element in the trace.
- * @param {Object} elem - The step element to handle.
+ * @param {Step} elem - The step element to handle.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} newTrace - The current trace object.
+ * @param {Trace} newTrace - The current trace object.
  * @param {Map} syntaxNodeCache - The cache of syntax nodes.
- * @param {Object} objectData - The object data used for value creation.
+ * @param {ObjectData} objectData - The object data used for value creation.
  */
 function handleStep(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
     if (elem.kind === 'logCall' || (elem.kind === 'logVoidCall' && elem.nodeKey !== 'absent')) {
@@ -165,11 +164,11 @@ function handleStep(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
 
 /**
  * Handles a log call step.
- * @param {Object} elem - The log call step element.
+ * @param {Step} elem - The log call step element.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} newTrace - The current trace object.
+ * @param {Trace} newTrace - The current trace object.
  * @param {Map} syntaxNodeCache - The cache of syntax nodes.
- * @param {Object} objectData - The object data used for value creation.
+ * @param {ObjectData} objectData - The object data used for value creation.
  */
 function handleLogCall(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
     let nextElem = newTrace.trace[newTrace.trace.length - 1];
@@ -201,9 +200,9 @@ function handleLogCall(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
 
 /**
  * Handles a log return step.
- * @param {Object} elem - The log return step element.
+ * @param {Step} elem - The log return step element.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} objectData - The object data used for value creation.
+ * @param {ObjectData} objectData - The object data used for value creation.
  */
 function handleLogReturn(elem, dataStack, objectData) {
     let ft = dataStack.pop()[0];
@@ -213,10 +212,10 @@ function handleLogReturn(elem, dataStack, objectData) {
 
 /**
  * Handles an expression step.
- * @param {Object} elem - The expression step element.
+ * @param {Step} elem - The expression step element.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Map} syntaxNodeCache - The cache of syntax nodes.
- * @param {Object} objectData - The object data used for value creation.
+ * @param {Map[String, SyntaxNode]} syntaxNodeCache - The cache of syntax nodes.
+ * @param {ObjectData} objectData - The object data used for value creation.
  */
 function handleExpression(elem, dataStack, syntaxNodeCache, objectData) {
     let expTrace = new ExpressionTrace();
@@ -235,7 +234,7 @@ function handleExpression(elem, dataStack, syntaxNodeCache, objectData) {
 /**
  * Pushes an element to the data stack.
  * @param {Array} dataStack - The stack of data elements.
- * @param {Object} elem - The element to push.
+ * @param {TraceElement} elem - The element to push.
  */
 function pushElement(dataStack, elem) {
     const result = dataStack.slice().reverse().findIndex(stackElem => stackElem[1]);

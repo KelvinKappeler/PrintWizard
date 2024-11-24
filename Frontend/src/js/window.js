@@ -15,7 +15,7 @@ export class Window {
         closeButton.classList.add('closeButton');
         closeButton.addEventListener('click', () => {
             window.remove();
-            ObjectInspector.checkIfEmpty();
+            ObjectInspector.instance.checkIfEmpty();
         });
 
         const minusButton = document.createElement('i');
