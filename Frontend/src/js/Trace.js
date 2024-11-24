@@ -19,10 +19,17 @@ export class Trace {
         ];
     }
 
+    /**
+     * Get the last block in the stack.
+     * @returns {StackFragment} The last block in the stack.
+     */
     getLastBlock() {
         return this.blockStack[this.blockStack.length - 1];
     }
 
+    /**
+     * Display the trace by appending the tree trace to the DOM.
+     */
     show() {
         Trace.lineNumbersArea.innerHTML = '';
         Trace.trianglesArea.innerHTML = '';
@@ -35,6 +42,12 @@ export class Trace {
         Trace.traceContentArea.appendChild(this.blockStack[0].traceContent);
     }
 
+    /**
+     * Create a new block in the trace.
+     * @param {number} lineNumber - The line number to start the block.
+     * @param {DocumentFragment} headerFragment - The header content of the block.
+     * @param {boolean} isHidden - Whether the block should be initially hidden.
+     */
     createBlock(lineNumber, headerFragment, isHidden) {
         const newBlock = new StackFragment(
             document.createElement('div'),
@@ -57,6 +70,9 @@ export class Trace {
         this.blockStack.push(newBlock);
     }
 
+    /**
+     * Close the current block and append it to the previous block.
+     */
     closeBlock() {
         const bs = this.blockStack.pop();
         const lastBlock = this.getLastBlock();
@@ -65,6 +81,13 @@ export class Trace {
         lastBlock.traceContent.appendChild(bs.traceContent);
     }
 
+    /**
+     * Add a line to the current block.
+     * @param {number} lineNumber - The line number to add.
+     * @param {DocumentFragment} contentFragment - The content of the line.
+     * @param {StackFragment} [newBlock=null] - The new block to create.
+     * @param {boolean} [isNewBlockHidden=false] - Whether the new block should be initially hidden.
+     */
     addLine(lineNumber, contentFragment, newBlock = null, isNewBlockHidden = false) {
         const lastBlock = this.getLastBlock();
         lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber));
@@ -83,6 +106,9 @@ export class Trace {
     }
 }
 
+/**
+ * Class representing a fragment of the stack.
+ */
 class StackFragment {
     constructor(linesNumber, triangles, traceContent) {
         this.linesNumber = linesNumber;
@@ -91,6 +117,9 @@ class StackFragment {
     }
 }
 
+/**
+ * Enum for trace span types.
+ */
 export class TraceSpanType {
     static Parenthesis = new TraceSpanType("parenthesis");
     static ReturnValue = new TraceSpanType("returnValue");
@@ -105,6 +134,9 @@ export class TraceSpanType {
     }
 }
 
+/**
+ * Class for creating and managing trace spans.
+ */
 export class TraceSpan {
     static keywords = [
         "abstract", "continue", "for", "new", "switch",
@@ -118,6 +150,12 @@ export class TraceSpan {
         "native", "super", "while"
     ];
 
+    /**
+     * Create a span element with the specified category and text content.
+     * @param {TraceSpanType} category - The category of the span.
+     * @param {string} textContent - The text content of the span.
+     * @returns {HTMLSpanElement} The created span element.
+     */
     static createSpan(category, textContent) {
         const span = document.createElement('span');
         span.classList.add(category.name);
@@ -126,6 +164,11 @@ export class TraceSpan {
         return span;
     }
 
+    /**
+     * Wrap keywords in a line with span elements.
+     * @param {string} line - The line of text to wrap.
+     * @returns {DocumentFragment} The wrapped line as a document fragment.
+     */
     static wrapKeywords(line) {
         const fragment = document.createDocumentFragment();
         const regex = new RegExp(`(\\b(?:${TraceSpan.keywords.join("|")})(?=\\W|$)|[()])`, 'g');
@@ -155,4 +198,5 @@ export class TraceSpan {
 
         return fragment;
     }
+
 }

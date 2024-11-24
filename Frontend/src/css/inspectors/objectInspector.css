@@ -67,3 +67,24 @@
     color: #4383a1;
     cursor: pointer;
 }
+
+
+.fieldState {
+    padding-top: 5px;
+}
+
+.currentState {
+    font-weight: bold;
+    color: #00bf2b;
+}
+
+.viewInTrace {
+    font-size:10px;
+    margin-left: 10px;
+    cursor: pointer;
+    background: #ffffff;
+}
+
+.viewInTrace:hover {
+    background: #1b4563;
+}

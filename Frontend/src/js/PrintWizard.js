@@ -1,7 +1,7 @@
 import {Breadcrumb} from "./Elements/Breadcrumb.js";
 import {JsonData} from "./json/JsonData.js";
-import {translateToTreeFormat} from "./jsonTranslate.js";
-import {Trace} from "./trace.js";
+import {translateToTreeFormat} from "./JsonTranslate.js";
+import {Trace} from "./Trace.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
 import {Preconditions} from "./utils/Preconditions.js";
 

@@ -1,4 +1,4 @@
-import {TraceSpan, TraceSpanType} from "./trace.js";
+import {TraceSpan, TraceSpanType} from "./Trace.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
 
 class TraceElement {

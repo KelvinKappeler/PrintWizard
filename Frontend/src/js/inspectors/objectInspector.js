@@ -1,6 +1,7 @@
 import {ObjectValue, PrimitiveValue} from "../def.js";
 import {Triangle} from "../Elements/Triangle.js";
 import {Window} from "../window.js";
+import {Trace} from "../Trace.js";
 
 export class ObjectInspector {
     static objectInspectorId = document.getElementById('objectInspector');
@@ -128,23 +129,37 @@ export class ObjectInspector {
             const obj = f[0];
             const value = f[1];
 
-            console.log(f);
-
+            if (currentVersion === obj.version) {
+                div.classList.add('currentState');
+                div.append(document.createTextNode('▶ '));
+            }
             if (value instanceof PrimitiveValue) {
-                if (value.value === lastValue) continue;
+                if (value.value === lastValue && currentVersion !== obj.version) continue;
                 div.append(document.createTextNode(value.value));
                 lastValue = value.value;
             } else {
-                if (lastValue !== undefined && value.fields === lastValue.fields) continue;
+                if (lastValue !== undefined && value.fields === lastValue.fields && currentVersion !== obj.version) continue;
                 div.append(value.documentFragment());
                 lastValue = value;
             }
-            if (currentVersion === obj.version) {
-                div.append(document.createTextNode(" (current)"));
-            }
+
             div.append(document.createTextNode(" | v" + obj.version + " | "));
             div.append(obj.documentFragment());
+
+            const viewInTrace = document.createElement('button');
+            viewInTrace.classList.add('viewInTrace');
+            viewInTrace.innerHTML = '<i class="bi bi-search"></i>'; // Add the icon (using Bootstrap icons)
+
+            viewInTrace.addEventListener('click', () => {
+                console.log('Inspect button clicked for object:', obj);
+            });
+
+            div.append(viewInTrace);
             div.append(document.createElement('br'));
+            div.classList.add('fieldState');
+
+
+
             mainDiv.append(div);
         }
 
