@@ -53,19 +53,22 @@ class SyntaxNode {
         }
         entireText += ')'.repeat(openCount);
 
-        return entireText;
+        return entireText.replace(/(\r\n|\n|\r)/gm, "");
     }
 
     getExpressionText() {
-        if (this.expression == null) {
+        if (!this.expression) {
             return "";
         }
 
-        return this.expression.tokens.map(token => token.text).join("");
+        return this.expression.tokens.map(token => {
+            if (token.text) return token.text.trim()
+            return "";
+        }).join("");
     }
 
     getFirstExpressionWithoutParenthesis() {
-        if (this.expression == null) {
+        if (!this.expression) {
             return "";
         }
 

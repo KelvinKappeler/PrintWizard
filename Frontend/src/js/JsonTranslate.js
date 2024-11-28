@@ -193,7 +193,7 @@ function handleLogCall(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
             newTrace.trace.pop();
         }
 
-        ft.name = syntaxNodeInSource.getFirstExpressionWithoutParenthesis();
+        ft.name = syntaxNodeInSource.getExpressionText();
         pushElement(dataStack, ft);
     }
 }

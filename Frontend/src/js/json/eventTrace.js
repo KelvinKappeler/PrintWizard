@@ -23,7 +23,7 @@ export class Event {
 class Kind {
     constructor(kind) {
         this.type = kind.type;
-        this.functionName = kind.functionName;
+        this.functionName = kind.functionName ? kind.functionName.trimEnd() : "";
     }
 }
 
