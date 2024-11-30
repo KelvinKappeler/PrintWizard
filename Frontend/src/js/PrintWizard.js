@@ -28,7 +28,8 @@ export class PrintWizard {
         console.clear();
         this.jsonData = new JsonData(location);
         this.jsonData.getAllData().then(data => {
-            const finalTreeTrace = translateToTreeFormat(data[2], data[0], data[1]);
+            const treeTrace = translateToTreeFormat(data[2], data[0], data[1]);
+            const finalTreeTrace = treeTrace.inlineLoops();
             console.log(finalTreeTrace);
 
             this.trace = new Trace(finalTreeTrace);

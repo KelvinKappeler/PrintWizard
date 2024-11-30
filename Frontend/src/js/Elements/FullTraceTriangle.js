@@ -8,6 +8,7 @@ export class FullTraceTriangle extends BaseTriangle {
         super(FullTraceTriangle.iconFold, FullTraceTriangle.iconExpanded, false);
 
         this.triangles = triangles;
+        this.element.classList.add('fullTraceTriangles');
         super.expand();
     }
 

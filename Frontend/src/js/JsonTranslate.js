@@ -240,3 +240,4 @@ function pushElement(dataStack, elem) {
     const result = dataStack.slice().reverse().findIndex(stackElem => stackElem[1]);
     dataStack[dataStack.length - 1 - result][0].content.push(elem);
 }
+

@@ -11,6 +11,22 @@ class TraceElement {
     append(trace) {}
 
     searchObject(objectValue) {}
+
+    inlineLoops() {
+        let newContent = [];
+        for (let i = 0; i < this.content.length; i++) {
+            const traceElem = this.content[i];
+            if (traceElem instanceof StatementTrace && traceElem.isForLoopStatement()) {
+                const forLoopTrace = new ForLoopTrace(traceElem.lineNumber, traceElem.line, traceElem.inlineLoops(), this.content[i + 1].inlineLoops());
+                i++;
+                newContent.push(forLoopTrace);
+            } else {
+                newContent.push(traceElem.inlineLoops());
+            }
+        }
+        this.content = newContent;
+        return this;
+    }
 }
 
 export class StatementTrace extends TraceElement {
@@ -43,6 +59,14 @@ export class StatementTrace extends TraceElement {
         }
         if (elements.length === 0) return undefined;
         return elements.reduce((prev, curr) => prev[1] < curr[1] ? prev : curr);
+    }
+
+    inlineLoops() {
+        return super.inlineLoops();
+    }
+
+    isForLoopStatement() {
+        return this.line.substring(0, 3) === "for";
     }
 }
 
@@ -79,6 +103,10 @@ export class ExpressionTrace extends TraceElement {
             }
         }
     }
+
+    inlineLoops() {
+        return this;
+    }
 }
 
 export class AssignmentExpressionTrace extends TraceElement {
@@ -111,6 +139,10 @@ export class AssignmentExpressionTrace extends TraceElement {
                 return [this, assign[0].version];
             }
         }
+    }
+
+    inlineLoops() {
+        return this;
     }
 }
 
@@ -190,6 +222,80 @@ export class FunctionTrace extends TraceElement {
 
         if (elements.length === 0) return undefined;
         return elements.reduce((prev, curr) => prev[1] < curr[1] ? prev : curr)
+    }
+
+
+
+    inlineLoops() {
+        return super.inlineLoops();
+    }
+}
+
+export class ForLoopTrace extends TraceElement {
+    constructor(lineNumber = 0, content = [], assignmentStatement = undefined, conditionStatement = undefined) {
+        super(lineNumber, content);
+        this.assignmentStatement = assignmentStatement;
+        this.conditionStatement = conditionStatement;
+        this.content = this.conditionStatement.content.slice(1)
+    }
+
+    append(trace) {
+        const lineFragment = document.createElement('span');
+
+        const assignmentFragment = this.assignmentFragment();
+        const conditionFragment = this.conditionFragment();
+
+        lineFragment.appendChild(TraceSpan.wrapKeywords("for ("));
+        lineFragment.appendChild(assignmentFragment);
+        lineFragment.appendChild(document.createTextNode("; "));
+        lineFragment.appendChild(conditionFragment);
+        lineFragment.appendChild(TraceSpan.wrapKeywords(")"));
+
+        if (this.content.length === 0) {
+            trace.addLine(this.lineNumber, lineFragment);
+        } else {
+            trace.createBlock(this.lineNumber, lineFragment, true);
+
+            for (let traceElem of this.content) {
+                traceElem.append(trace);
+            }
+
+            trace.closeBlock();
+        }
+
+        this.element = lineFragment;
+    }
+
+    assignmentFragment() {
+        const assignmentFragment = document.createElement('span');
+
+        const assignment = this.assignmentStatement.content[0].assigns[0];
+        assignmentFragment.appendChild(document.createTextNode(
+            assignment[1] + " := " + assignment[0].value)
+        );
+
+        assignmentFragment.classList.add('loopHeaderAssignment')
+
+        return assignmentFragment;
+    }
+
+    conditionFragment() {
+        const conditionFragment = document.createElement('span');
+
+        const condition = this.conditionStatement.content[0];
+        conditionFragment.appendChild(TraceSpan.wrapKeywords(condition.content));
+        conditionFragment.appendChild(document.createTextNode(" -> "));
+        const spanType = TraceSpanType.ReturnValuePrimitive;
+        const returnValFragment = condition.result.documentFragment(spanType);
+        conditionFragment.appendChild(returnValFragment);
+
+        conditionFragment.classList.add('loopHeaderCondition')
+
+        return conditionFragment;
+    }
+
+    searchObject(objectValue) {
+        return this.conditionStatement.searchObject(objectValue);
     }
 }
 
@@ -363,11 +469,5 @@ export class ArrayValue extends Value {
         span.append(document.createTextNode("]"));
         df.appendChild(span);
         return df;
-    }
-}
-
-export class LoopTrace extends TraceElement {
-    constructor(lineNumber, content) {
-        super(lineNumber, content);
     }
 }

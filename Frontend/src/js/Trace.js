@@ -100,6 +100,7 @@ export class Trace {
         lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber));
         lastBlock.linesNumber.appendChild(document.createElement('br'));
 
+        const newLines = this.countNewLinesInDocumentFragment(contentFragment);
         contentFragment.prepend(document.createTextNode(Trace.space.repeat(this.blockStack.length - 1)));
         lastBlock.traceContent.appendChild(contentFragment);
         lastBlock.traceContent.appendChild(document.createElement('br'));
@@ -111,10 +112,28 @@ export class Trace {
         }
         lastBlock.triangles.appendChild(document.createElement('br'));
 
+        for (let i = 0; i < newLines; i++) {
+            lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber + i + 1));
+            lastBlock.linesNumber.appendChild(document.createElement('br'));
+            lastBlock.triangles.appendChild(document.createElement('br'));
+        }
     }
 
     getTraceElementWithObjectValue(objectValue) {
         return this.treeTrace.searchObject(objectValue);
+    }
+
+    //check if the fragment or childs contains a /n character and return the number of new lines
+    countNewLinesInDocumentFragment(fragment) {
+        let count = 0;
+        fragment.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                count += (node.textContent.match(/\n/g) || []).length;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                count += this.countNewLinesInDocumentFragment(node);
+            }
+        });
+        return count;
     }
 }
 
@@ -136,10 +155,13 @@ export class TraceSpanType {
     static Parenthesis = new TraceSpanType("parenthesis");
     static ReturnValue = new TraceSpanType("returnValue");
     static ReturnValuePrimitive = new TraceSpanType("returnValuePrimitive");
+    static LoopHeaderAssignment = new TraceSpanType("loopHeaderAssignment");
+    static LoopHeaderCondition = new TraceSpanType("loopHeaderCondition");
     static FunctionName = new TraceSpanType("functionName");
     static ArgsValue = new TraceSpanType("argsValue");
     static ArgsValuePrimitive = new TraceSpanType("argsValuePrimitive");
     static Keywords = new TraceSpanType("keywords");
+    static None = new TraceSpanType("none");
 
     constructor(name) {
         this.name = name;
