@@ -434,7 +434,7 @@ export class ObjectValue extends Value {
         const df = document.createDocumentFragment();
         const span = TraceSpan.createSpan(
             traceSpanType,
-            this.dataType + ": $" + this.pointer + "   " + this.version
+            this.dataType + ": $" + this.pointer
         );
         span.addEventListener('click', () => {
             ObjectInspector.instance.add(this);

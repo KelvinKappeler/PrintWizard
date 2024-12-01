@@ -54,7 +54,11 @@ function createLineNumberToSyntaxNodeMap(sourceFormat) {
     const lineNumberToSyntaxNode = new Map();
     sourceFormat.syntaxNodes.forEach(node => {
         if (node.startLine !== undefined) {
-            lineNumberToSyntaxNode.set(node.startLine, node.getEntireText());
+            const text = node.getEntireText();
+            const oldText = lineNumberToSyntaxNode.get(text);
+            if (!oldText || oldText.length < text.length) {
+                lineNumberToSyntaxNode.set(node.startLine, text);
+            }
         }
     });
     return lineNumberToSyntaxNode;
@@ -193,7 +197,7 @@ function handleLogCall(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
             newTrace.trace.pop();
         }
 
-        ft.name = syntaxNodeInSource.getEntireText();
+        ft.name = syntaxNodeInSource.getExpressionText();
         pushElement(dataStack, ft);
     }
 }
@@ -224,7 +228,7 @@ function handleExpression(elem, dataStack, syntaxNodeCache, objectData) {
     }
 
     let syntaxNodeInSource = syntaxNodeCache.get(elem.nodeKey);
-    expTrace.content = syntaxNodeInSource.getEntireText();
+    expTrace.content = syntaxNodeInSource.getExpressionText();
     expTrace.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
     expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value, objectData), assign.identifier.name]);
     expTrace.result = elem.result ? Value.newValue(elem.result, objectData) : undefined;

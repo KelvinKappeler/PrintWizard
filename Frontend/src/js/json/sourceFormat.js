@@ -52,7 +52,6 @@ class SyntaxNode {
             }
         }
         entireText += ')'.repeat(openCount);
-        console.log(entireText);
         return entireText;//.replace(/(\r\n|\n|\r)/gm, "");
     }
 
