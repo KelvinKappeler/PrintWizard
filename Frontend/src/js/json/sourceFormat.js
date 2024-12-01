@@ -52,8 +52,8 @@ class SyntaxNode {
             }
         }
         entireText += ')'.repeat(openCount);
-
-        return entireText.replace(/(\r\n|\n|\r)/gm, "");
+        console.log(entireText);
+        return entireText;//.replace(/(\r\n|\n|\r)/gm, "");
     }
 
     getExpressionText() {

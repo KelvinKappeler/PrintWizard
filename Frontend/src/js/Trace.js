@@ -52,7 +52,7 @@ export class Trace {
     /**
      * Create a new block in the trace.
      * @param {number} lineNumber - The line number to start the block.
-     * @param {DocumentFragment} headerFragment - The header content of the block.
+     * @param {Node} headerFragment - The header content of the block.
      * @param {boolean} isHidden - Whether the block should be initially hidden.
      */
     createBlock(lineNumber, headerFragment, isHidden) {
@@ -91,7 +91,7 @@ export class Trace {
     /**
      * Add a line to the current block.
      * @param {number} lineNumber - The line number to add.
-     * @param {DocumentFragment} contentFragment - The content of the line.
+     * @param {Node} contentFragment - The content of the line.
      * @param {StackFragment} [newBlock=null] - The new block to create.
      * @param {boolean} [isNewBlockHidden=false] - Whether the new block should be initially hidden.
      */

@@ -193,7 +193,7 @@ function handleLogCall(elem, dataStack, newTrace, syntaxNodeCache, objectData) {
             newTrace.trace.pop();
         }
 
-        ft.name = syntaxNodeInSource.getExpressionText();
+        ft.name = syntaxNodeInSource.getEntireText();
         pushElement(dataStack, ft);
     }
 }
@@ -224,7 +224,7 @@ function handleExpression(elem, dataStack, syntaxNodeCache, objectData) {
     }
 
     let syntaxNodeInSource = syntaxNodeCache.get(elem.nodeKey);
-    expTrace.content = syntaxNodeInSource.getExpressionText();
+    expTrace.content = syntaxNodeInSource.getEntireText();
     expTrace.lineNumber = (syntaxNodeInSource.startLine === undefined) ? "-" : syntaxNodeInSource.startLine;
     expTrace.assigns = elem.assigns.map(assign => [Value.newValue(assign.value, objectData), assign.identifier.name]);
     expTrace.result = elem.result ? Value.newValue(elem.result, objectData) : undefined;
