@@ -1,7 +1,8 @@
 import {PrimitiveValue} from "../def.js";
-import {Triangle} from "../Elements/Triangle.js";
+import {TraceTriangle} from "../Elements/TraceTriangle.js";
 import {Window} from "../window.js";
 import {PWElement} from "../Elements/PWElement.js";
+import {BaseTriangle} from "../Elements/BaseTriangle.js";
 
 export class ObjectInspector extends PWElement {
 
@@ -29,7 +30,7 @@ export class ObjectInspector extends PWElement {
         fieldsDiv.classList.add('fieldsDiv');
 
         const titleDiv = document.createElement('div');
-        const triangle = new Triangle([fieldsDiv]);
+        const triangle = new BaseTriangle([fieldsDiv]);
         triangle.element.classList.add('triangleObjectInspector');
         triangle.attachTo(titleDiv);
         titleDiv.appendChild(document.createTextNode(
@@ -64,7 +65,7 @@ export class ObjectInspector extends PWElement {
 
             const statesDiv = this.createFieldStateDiv(objectValue.states, objectValue, field);
 
-            const fieldTriangle = new Triangle([statesDiv]);
+            const fieldTriangle = new BaseTriangle([statesDiv]);
             fieldTriangle.element.classList.add('triangleFields');
             fieldTriangle.attachTo(fieldDiv);
             fieldDiv.classList.add('fieldDiv');
@@ -166,8 +167,19 @@ export class ObjectInspector extends PWElement {
             });
 
             viewInTrace.addEventListener('mouseenter', () => {
-                const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
-                traceElement.element.style.backgroundColor = 'rgba(147,74,172,0.5)';
+                let traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+
+                let isFound = false;
+                while (!isFound) {
+                    console.log(traceElement.element.parent);
+                    if (traceElement.element.classList.contains('hidden')) {
+                        traceElement = traceElement.element.parent;
+                    } else {
+                        traceElement.element.style.backgroundColor = 'rgba(147,74,172,0.5)';
+                        isFound = true;
+                    }
+                }
+
             });
 
             viewInTrace.addEventListener('mouseleave', () => {

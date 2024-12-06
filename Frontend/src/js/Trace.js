@@ -1,5 +1,4 @@
-import {Triangle} from "./Elements/Triangle.js";
-import {FullTraceTriangle} from "./Elements/FullTraceTriangle.js";
+import {TraceTriangle} from "./Elements/TraceTriangle.js";
 
 /**
  * This class is used to show the trace of the program execution.
@@ -13,18 +12,12 @@ export class Trace {
     constructor(treeTrace) {
         this.treeTrace = treeTrace;
 
-        this.blockStack = [new StackFragment(
-            document.createElement('div'),
-            document.createElement('div'),
-            document.createElement('div'))
-        ];
-
-        this.triangles = [];
+        this.blockStack = [new TraceBlock()];
     }
 
     /**
      * Get the last block in the stack.
-     * @returns {StackFragment} The last block in the stack.
+     * @returns {TraceBlock} The last block in the stack.
      */
     getLastBlock() {
         return this.blockStack[this.blockStack.length - 1];
@@ -39,14 +32,11 @@ export class Trace {
         Trace.traceContentArea.innerHTML = '';
 
         this.treeTrace.append(this);
+        const lineNumbers = this.blockStack[0].stackFragment.linesNumber;
 
-        const lineNumbers = this.blockStack[0].linesNumber;
-        const fullTriangle = new FullTraceTriangle(this.triangles);
-
-        fullTriangle.attachTo(lineNumbers, false);
         Trace.lineNumbersArea.appendChild(lineNumbers);
-        Trace.trianglesArea.appendChild(this.blockStack[0].triangles);
-        Trace.traceContentArea.appendChild(this.blockStack[0].traceContent);
+        Trace.trianglesArea.appendChild(this.blockStack[0].stackFragment.triangles);
+        Trace.traceContentArea.appendChild(this.blockStack[0].stackFragment.traceContent);
     }
 
     /**
@@ -56,22 +46,18 @@ export class Trace {
      * @param {boolean} isHidden - Whether the block should be initially hidden.
      */
     createBlock(lineNumber, headerFragment, isHidden) {
-        const newBlock = new StackFragment(
-            document.createElement('div'),
-            document.createElement('div'),
-            document.createElement('div')
-        );
+        const newBlock = new TraceBlock();
 
         this.addLine(lineNumber, headerFragment, newBlock, isHidden);
 
-        newBlock.linesNumber.classList.add('lineNumberBlock');
-        newBlock.triangles.classList.add('trianglesBlock');
-        newBlock.traceContent.classList.add('codeBlocks');
+        newBlock.stackFragment.linesNumber.classList.add('lineNumberBlock');
+        newBlock.stackFragment.triangles.classList.add('trianglesBlock');
+        newBlock.stackFragment.traceContent.classList.add('codeBlocks');
 
         if (isHidden) {
-            newBlock.linesNumber.classList.add('hidden');
-            newBlock.triangles.classList.add('hidden');
-            newBlock.traceContent.classList.add('hidden');
+            newBlock.stackFragment.linesNumber.classList.add('hidden');
+            newBlock.stackFragment.triangles.classList.add('hidden');
+            newBlock.stackFragment.traceContent.classList.add('hidden');
         }
 
         this.blockStack.push(newBlock);
@@ -83,39 +69,40 @@ export class Trace {
     closeBlock() {
         const bs = this.blockStack.pop();
         const lastBlock = this.getLastBlock();
-        lastBlock.linesNumber.appendChild(bs.linesNumber);
-        lastBlock.triangles.appendChild(bs.triangles);
-        lastBlock.traceContent.appendChild(bs.traceContent);
+        lastBlock.subTriangles = lastBlock.subTriangles.concat(bs.subTriangles);
+        lastBlock.stackFragment.linesNumber.appendChild(bs.stackFragment.linesNumber);
+        lastBlock.stackFragment.triangles.appendChild(bs.stackFragment.triangles);
+        lastBlock.stackFragment.traceContent.appendChild(bs.stackFragment.traceContent);
     }
 
     /**
      * Add a line to the current block.
      * @param {number} lineNumber - The line number to add.
      * @param {Node} contentFragment - The content of the line.
-     * @param {StackFragment} [newBlock=null] - The new block to create.
+     * @param {TraceBlock} [newBlock=null] - The new block to create.
      * @param {boolean} [isNewBlockHidden=false] - Whether the new block should be initially hidden.
      */
     addLine(lineNumber, contentFragment, newBlock = null, isNewBlockHidden = false) {
         const lastBlock = this.getLastBlock();
-        lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber));
-        lastBlock.linesNumber.appendChild(document.createElement('br'));
+        lastBlock.stackFragment.linesNumber.appendChild(document.createTextNode(lineNumber.toString()));
+        lastBlock.stackFragment.linesNumber.appendChild(document.createElement('br'));
 
         const newLines = this.countNewLinesInDocumentFragment(contentFragment);
         contentFragment.prepend(document.createTextNode(Trace.space.repeat(this.blockStack.length - 1)));
-        lastBlock.traceContent.appendChild(contentFragment);
-        lastBlock.traceContent.appendChild(document.createElement('br'));
+        lastBlock.stackFragment.traceContent.appendChild(contentFragment);
+        lastBlock.stackFragment.traceContent.appendChild(document.createElement('br'));
 
         if (newBlock) {
-            let triangle = new Triangle([newBlock.linesNumber, newBlock.traceContent, newBlock.triangles], isNewBlockHidden);
-            triangle.attachTo(lastBlock.triangles);
-            this.triangles.push(triangle);
+            let triangle = new TraceTriangle(newBlock, isNewBlockHidden);
+            triangle.attachTo(lastBlock.stackFragment.triangles);
+            lastBlock.subTriangles.push(triangle);
         }
-        lastBlock.triangles.appendChild(document.createElement('br'));
+        lastBlock.stackFragment.triangles.appendChild(document.createElement('br'));
 
         for (let i = 0; i < newLines; i++) {
-            lastBlock.linesNumber.appendChild(document.createTextNode(lineNumber + i + 1));
-            lastBlock.linesNumber.appendChild(document.createElement('br'));
-            lastBlock.triangles.appendChild(document.createElement('br'));
+            lastBlock.stackFragment.linesNumber.appendChild(document.createTextNode((lineNumber + i + 1).toString()));
+            lastBlock.stackFragment.linesNumber.appendChild(document.createElement('br'));
+            lastBlock.stackFragment.triangles.appendChild(document.createElement('br'));
         }
     }
 
@@ -134,6 +121,16 @@ export class Trace {
             }
         });
         return count;
+    }
+}
+
+export class TraceBlock {
+    constructor() {
+         this.stackFragment = new StackFragment(
+             document.createElement('div'),
+             document.createElement('div'),
+             document.createElement('div'));
+         this.subTriangles = [];
     }
 }
 
