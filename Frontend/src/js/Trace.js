@@ -48,7 +48,7 @@ export class Trace {
     createBlock(lineNumber, headerFragment, isHidden) {
         const newBlock = new TraceBlock();
 
-        this.addLine(lineNumber, headerFragment, newBlock, isHidden);
+        const blockTriangle = this.addLine(lineNumber, headerFragment, newBlock, isHidden);
 
         newBlock.stackFragment.linesNumber.classList.add('lineNumberBlock');
         newBlock.stackFragment.triangles.classList.add('trianglesBlock');
@@ -61,6 +61,8 @@ export class Trace {
         }
 
         this.blockStack.push(newBlock);
+
+        return blockTriangle;
     }
 
     /**
@@ -92,8 +94,9 @@ export class Trace {
         lastBlock.stackFragment.traceContent.appendChild(contentFragment);
         lastBlock.stackFragment.traceContent.appendChild(document.createElement('br'));
 
+        let triangle = null;
         if (newBlock) {
-            let triangle = new TraceTriangle(newBlock, isNewBlockHidden);
+            triangle = new TraceTriangle(newBlock, isNewBlockHidden);
             triangle.attachTo(lastBlock.stackFragment.triangles);
             lastBlock.subTriangles.push(triangle);
         }
@@ -104,6 +107,8 @@ export class Trace {
             lastBlock.stackFragment.linesNumber.appendChild(document.createElement('br'));
             lastBlock.stackFragment.triangles.appendChild(document.createElement('br'));
         }
+
+        return triangle;
     }
 
     getTraceElementWithObjectValue(objectValue) {
@@ -121,6 +126,10 @@ export class Trace {
             }
         });
         return count;
+    }
+
+    getObjectsGivenCondition(condition) {
+        return this.treeTrace.searchObject2(condition).flat();
     }
 }
 

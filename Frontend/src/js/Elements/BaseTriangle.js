@@ -21,14 +21,14 @@ export class BaseTriangle extends PWElement {
         this.toggle();
     }
 
-    expand() {
+    collapse() {
         this.element.classList.remove(this.iconFold);
         this.element.classList.add(this.iconExpanded);
         this.isCollapse = true;
         this.elementsToHide.forEach(element => element.classList.add('hidden'));
     }
 
-    collapse() {
+    expand() {
         this.element.classList.remove(this.iconExpanded);
         this.element.classList.add(this.iconFold);
         this.isCollapse = false;
@@ -36,6 +36,6 @@ export class BaseTriangle extends PWElement {
     }
 
     toggle(event = undefined) {
-        this.isCollapse ? this.collapse() : this.expand();
+        this.isCollapse ? this.expand() : this.collapse();
     }
 }

@@ -236,12 +236,13 @@ function handleExpression(elem, dataStack, syntaxNodeCache, objectData) {
 }
 
 /**
- * Pushes an element to the data stack.
+ * Pushes an element to the content of the top element in the stack.
  * @param {Array} dataStack - The stack of data elements.
  * @param {TraceElement} elem - The element to push.
  */
 function pushElement(dataStack, elem) {
     const result = dataStack.slice().reverse().findIndex(stackElem => stackElem[1]);
     dataStack[dataStack.length - 1 - result][0].content.push(elem);
+    elem.parent = dataStack[dataStack.length - 1 - result][0];
 }
 

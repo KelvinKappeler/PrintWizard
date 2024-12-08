@@ -28,15 +28,21 @@ export class TraceTriangle extends BaseTriangle {
 
     toggle(event = undefined) {
         if (event && event.shiftKey) {
-            this.traceBlock.subTriangles.forEach(triangle => {
-                if (this.isCollapse) {
-                    triangle.collapse();
-                } else {
-                    triangle.expand();
-                }}
-            );
+            this.toggleAll();
+        } else {
+            super.toggle(event);
         }
 
-        super.toggle(event);
+    }
+
+    toggleAll() {
+        this.traceBlock.subTriangles.forEach(triangle => {
+            if (this.isCollapse) {
+                triangle.expand();
+            } else {
+                triangle.collapse();
+            }}
+        );
+        super.toggle();
     }
 }

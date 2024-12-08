@@ -2,13 +2,16 @@ import {TraceSpan, TraceSpanType} from "./Trace.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
 
 class TraceElement {
-    constructor(lineNumber, content) {
+    constructor(lineNumber, content, parent = undefined) {
         this.lineNumber = lineNumber;
         this.content = content;
         this.element = undefined;
+        this.parent = parent;
     }
 
     append(trace) {}
+
+    searchObject2(condition) {}
 
     searchObject(objectValue) {}
 
@@ -23,20 +26,34 @@ class TraceElement {
                     activeLoop = undefined;
                 }
                 if (!activeLoop) {
-                    activeLoop = new LoopTrace(this.content[i].lineNumber, [], this.content[i].line);
+                    activeLoop = new LoopTrace(this.content[i].lineNumber, [], this, this.content[i].line);
                     if (this.content[i].isForLoopStatement()) {
+                        stm.parent = activeLoop
                         activeLoop.initialStatement = stm;
                         continue;
                     }
                 }
                 const index = stm.content.findIndex(e => e instanceof ExpressionTrace);
                 if (index === -1) {
+                    stm.content.forEach(elem => elem.parent = activeLoop);
                     activeLoop.incrementationStatement.push(stm.content);
                 } else {
-                    activeLoop.conditionalStatement.push(stm.content.slice(0, index + 1));
-                    if (stm.content.length !== index + 1) {
-                        activeLoop.content.push(stm.content.slice(index + 1));
+                    let cond = stm.content.slice(0, index + 1);
+                    cond.forEach(elem => elem.parent = activeLoop);
+
+                    const loopIteration = new LoopIterationTrace(
+                        activeLoop.lineNumber, stm.content.slice(index + 1), activeLoop, activeLoop.line, i, cond
+                    );
+
+                    if (loopIteration.content.length !== 0) {
+                        loopIteration.content.forEach(elem => elem.parent = loopIteration);
                     }
+
+                    if (loopIteration.conditionalStatement.length !== 0) {
+                        loopIteration.conditionalStatement.forEach(elem => elem.parent = activeLoop);
+                    }
+
+                    activeLoop.content.push(loopIteration);
                 }
 
             } else {
@@ -53,16 +70,17 @@ class TraceElement {
 }
 
 export class StatementTrace extends TraceElement {
-    constructor(lineNumber = 0, content = [], line = "") {
-        super(lineNumber, content);
+    constructor(lineNumber = 0, content = [], parent = undefined, line = "") {
+        super(lineNumber, content, parent);
         this.line = line;
+        this.triangle = undefined;
     }
 
     append(trace) {
         const lineFragment = document.createElement('span');
 
         lineFragment.appendChild(TraceSpan.wrapKeywords(this.line));
-        trace.createBlock(this.lineNumber, lineFragment, true);
+        this.triangle = trace.createBlock(this.lineNumber, lineFragment, true);
 
         for (let traceElem of this.content) {
             traceElem.append(trace);
@@ -71,6 +89,19 @@ export class StatementTrace extends TraceElement {
         trace.closeBlock();
 
         this.element = lineFragment;
+    }
+
+    searchObject2(condition) {
+        let elements = []
+
+        for (let traceElem of this.content) {
+            const val = traceElem.searchObject2(condition);
+            if (val.length > 0) {
+                elements = elements.concat(val);
+            }
+        }
+
+        return elements;
     }
 
     searchObject(objectValue) {
@@ -103,8 +134,8 @@ export class StatementTrace extends TraceElement {
 }
 
 export class ExpressionTrace extends TraceElement {
-    constructor(lineNumber = 0, content = "", result = undefined, assigns = undefined) {
-        super(lineNumber, content);
+    constructor(lineNumber = 0, content = "", parent = undefined, result = undefined, assigns = undefined) {
+        super(lineNumber, content, parent);
         this.result = result;
         this.assigns = assigns;
     }
@@ -122,6 +153,22 @@ export class ExpressionTrace extends TraceElement {
 
         trace.addLine(this.lineNumber, contentFragment);
         this.element = contentFragment;
+    }
+
+    searchObject2(condition) {
+        let elements = []
+
+        if (condition(this.result)) {
+            elements.push([[this, this.result]])
+        }
+
+        this.assigns?.forEach(assign => {
+            if (condition(assign[0])) {
+                elements.push([[this, assign[0]]]);
+            }
+        });
+
+        return elements;
     }
 
     searchObject(objectValue) {
@@ -142,8 +189,8 @@ export class ExpressionTrace extends TraceElement {
 }
 
 export class AssignmentExpressionTrace extends TraceElement {
-    constructor(lineNumber = 0, content = "", assigns = undefined) {
-        super(lineNumber, content);
+    constructor(lineNumber = 0, content = "", parent = undefined, assigns = undefined) {
+        super(lineNumber, content, parent);
         this.assigns = assigns;
     }
 
@@ -165,6 +212,18 @@ export class AssignmentExpressionTrace extends TraceElement {
         this.element = contentFragment;
     }
 
+    searchObject2(condition) {
+        let elements = [];
+
+        this.assigns?.forEach(assign => {
+            if (condition(assign[0])) {
+                elements.push([[this, assign[0]]]);
+            }
+        });
+
+        return elements;
+    }
+
     searchObject(objectValue) {
         for (let assign of this.assigns) {
             if (assign[0] instanceof ObjectValue && assign[0].isLowerVersion(objectValue)) {
@@ -179,13 +238,14 @@ export class AssignmentExpressionTrace extends TraceElement {
 }
 
 export class FunctionTrace extends TraceElement {
-    constructor(lineNumber = "", content = [], name = "", args = [], returnVal = null, isVoid = false, isExternal = false) {
-        super(lineNumber, content);
+    constructor(lineNumber = "", content = [], parent = undefined, name = "", args = [], returnVal = null, isVoid = false, isExternal = false) {
+        super(lineNumber, content, parent);
         this.name = name;
         this.args = args;
         this.returnVal = returnVal;
         this.isVoid = isVoid;
         this.isExternal = isExternal;
+        this.triangle = undefined;
     }
 
     append(trace) {
@@ -195,7 +255,7 @@ export class FunctionTrace extends TraceElement {
         if (this.content.length === 0) {
             trace.addLine(this.lineNumber, header, null, isHidden);
         } else {
-            trace.createBlock(this.lineNumber, header, isHidden);
+            this.triangle = trace.createBlock(this.lineNumber, header, isHidden);
 
             for (let traceElem of this.content) {
                 traceElem.append(trace);
@@ -232,6 +292,29 @@ export class FunctionTrace extends TraceElement {
         return headerFragment;
     }
 
+    searchObject2(condition) {
+        let elements = []
+
+        if (condition(this.returnVal)) {
+            elements.push([[this, this.returnVal]]);
+        }
+
+        for (let arg of this.args) {
+            if (condition(arg)) {
+                elements.push([[this, arg]]);
+            }
+        }
+
+        for (let traceElem of this.content) {
+            const res = traceElem.searchObject2(condition);
+            if (res.length > 0) {
+                elements = elements.concat(res);
+            }
+        }
+
+        return elements;
+    }
+
     searchObject(objectValue) {
         const elements = []
 
@@ -262,57 +345,67 @@ export class FunctionTrace extends TraceElement {
 }
 
 export class LoopTrace extends TraceElement {
-    constructor(lineNumber = 0, content = [], line = "", initialStatement = undefined, conditionalStatement = [], incrementationStatement = []) {
-        super(lineNumber, content);
+    constructor(lineNumber = 0, content = [], parent = undefined, line = "", initialStatement = undefined, incrementationStatement = []) {
+        super(lineNumber, [], parent);
         this.line = line;
         this.initialStatement = initialStatement;
-        this.conditionalStatement = conditionalStatement;
         this.incrementationStatement = incrementationStatement;
+        this.triangle = undefined;
     }
 
     append(trace) {
         const header = document.createElement('span');
         header.appendChild(TraceSpan.wrapKeywords(this.line));
 
-        trace.createBlock(this.lineNumber, header, true);
+        this.triangle = trace.createBlock(this.lineNumber, header, true);
 
         if (this.initialStatement) {
             this.initialStatement.content.forEach(e => e.append(trace));
         }
 
-        for (let i = 0; i < this.conditionalStatement.length; i++) {
-            if (this.conditionalStatement[i].length > 1) {
-                this.conditionalStatement[i].slice(0, this.conditionalStatement[i].length - 1).forEach(e => e.append(trace));
-            }
-            const line = document.createElement('span');
-            const condition = this.conditionalStatement[i][this.conditionalStatement[i].length - 1];
-
-            const iterationSpan = document.createElement('span');
-            iterationSpan.append(document.createTextNode('i' + i));
-            iterationSpan.classList.add('loopIteration');
-            line.append(iterationSpan);
-            line.append(TraceSpan.wrapKeywords(this.line));
-            line.append(document.createTextNode(' -> '));
-            line.append(condition.result.documentFragment(TraceSpanType.ReturnValuePrimitive));
-
-            if (!this.content[i]) {
-                trace.addLine(this.lineNumber, line);
-            } else {
-                trace.createBlock(this.lineNumber, line, true);
-                this.content[i].forEach(e => e.append(trace));
-                trace.closeBlock();
-            }
+        for (let i = 0; i < this.content.length; i++) {
+            const loopIteration = this.content[i];
+            loopIteration.append(trace);
 
             if (this.incrementationStatement[i]) {
-                this.incrementationStatement[i].forEach(e => e.append(trace))
+                this.incrementationStatement[i].forEach(e => e.append(trace));
             }
         }
 
         trace.closeBlock();
+
+        this.element = header;
     }
 
     inlineLoops() {
         throw new Error("Should not be called");
+    }
+
+    searchObject2(condition) {
+        let elements = []
+
+        if (this.initialStatement) {
+            const val = this.initialStatement.searchObject2(condition);
+            if (val) elements = elements.concat(val);
+        }
+
+        if (this.incrementationStatement) {
+            this.incrementationStatement.forEach(incrementationStatement => {
+                incrementationStatement.forEach(incr => {
+                    const val = incr.searchObject2(condition);
+                    if (val.length > 0) elements = elements.concat(val);
+                });
+            });
+        }
+
+        if (this.content) {
+            this.content.forEach(loopIteration => {
+                const val = loopIteration.searchObject2(condition);
+                if (val.length > 0) elements = elements.concat(val);
+            });
+        }
+
+        return elements;
     }
 
     searchObject(objectValue) {
@@ -323,19 +416,100 @@ export class LoopTrace extends TraceElement {
             if (val) elements.push(val);
         }
 
-        this.conditionalStatement.forEach(conditionalStatement => {
-            conditionalStatement.forEach(conditional => {
-                const val = conditional.searchObject(objectValue);
-                if (val) elements.push(val);
-            });
-        });
-
         if (this.incrementationStatement) {
             this.incrementationStatement.forEach(incrementationStatement => {
                 incrementationStatement.forEach(incr => {
                     const val = incr.searchObject(objectValue);
                     if (val) elements.push(val);
                 });
+            });
+        }
+
+        if (this.content) {
+            this.content.forEach(loopIteration => {
+                const val = loopIteration.searchObject(objectValue);
+                if (val) elements.push(val);
+            });
+        }
+
+        if (elements.length === 0) return undefined;
+        return elements.reduce((prev, curr) => prev[1] < curr[1] ? prev : curr)
+    }
+}
+
+export class LoopIterationTrace extends TraceElement {
+    constructor(
+        lineNumber = 0, content = [], parent = undefined,
+        line = "", iteration = 0, conditionalStatement = []
+    ) {
+        super(lineNumber, content, parent);
+
+        this.line = line;
+        this.iteration = iteration;
+        this.conditionalStatement = conditionalStatement;
+        this.triangle = undefined;
+    }
+
+    append(trace) {
+        if (this.conditionalStatement.length > 1) {
+            this.conditionalStatement.slice(0, this.conditionalStatement.length - 1).forEach(e => e.append(trace));
+        }
+
+        const line = document.createElement('span');
+        const condition = this.conditionalStatement[this.conditionalStatement.length - 1];
+
+        const iterationSpan = document.createElement('span');
+        iterationSpan.append(document.createTextNode('i' + this.iteration));
+        iterationSpan.classList.add('loopIteration');
+        line.append(iterationSpan);
+        line.append(TraceSpan.wrapKeywords(this.line));
+        line.append(document.createTextNode(' -> '));
+        line.append(condition.result.documentFragment(TraceSpanType.ReturnValuePrimitive));
+
+        if (!this.content || this.content.length === 0) {
+            trace.addLine(this.lineNumber, line);
+        } else {
+            trace.createBlock(this.lineNumber, line, true);
+            this.content.forEach(e => e.append(trace));
+            trace.closeBlock();
+        }
+        this.element = line;
+    }
+
+    inlineLoops() {
+        throw new Error("Should not be called");
+    }
+
+    searchObject2(condition) {
+        let elements = []
+
+        for (let conditional of this.conditionalStatement) {
+            const val = conditional.searchObject2(condition);
+            if (val.length > 0) elements = elements.concat(val);
+        }
+
+        for (let traceElem of this.content) {
+            const val = traceElem.searchObject2(condition);
+            if (val.length > 0) elements = elements.concat(val);
+        }
+
+        return elements;
+    }
+
+    searchObject(objectValue) {
+        let elements = []
+
+        if (this.conditionalStatement) {
+            this.conditionalStatement.forEach(conditional => {
+                const val = conditional.searchObject(objectValue);
+                if (val) elements.push(val);
+            });
+        }
+
+        if (this.content) {
+            this.content.forEach(traceElem => {
+                const val = traceElem.searchObject(objectValue);
+                if (val) elements.push(val);
             });
         }
 

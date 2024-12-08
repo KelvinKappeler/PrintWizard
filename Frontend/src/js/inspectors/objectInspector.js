@@ -1,5 +1,4 @@
 import {PrimitiveValue} from "../def.js";
-import {TraceTriangle} from "../Elements/TraceTriangle.js";
 import {Window} from "../window.js";
 import {PWElement} from "../Elements/PWElement.js";
 import {BaseTriangle} from "../Elements/BaseTriangle.js";
@@ -163,28 +162,41 @@ export class ObjectInspector extends PWElement {
 
             viewInTrace.addEventListener('click', () => {
                 const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+                let tempTraceElement = traceElement.parent;
+
+                while (tempTraceElement !== undefined) {
+                    tempTraceElement.element.style.backgroundColor = '';
+                    const triangle = tempTraceElement.triangle;
+                    if (triangle) {
+                        triangle.expand();
+                    }
+                    tempTraceElement = tempTraceElement.parent;
+                }
+
                 traceElement.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
 
             viewInTrace.addEventListener('mouseenter', () => {
                 let traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+                traceElement.element.style.backgroundColor = 'rgba(147,74,172,0.5)';
 
-                let isFound = false;
-                while (!isFound) {
-                    console.log(traceElement.element.parent);
-                    if (traceElement.element.classList.contains('hidden')) {
-                        traceElement = traceElement.element.parent;
-                    } else {
+                while (traceElement !== undefined && traceElement.element.parentNode !== undefined) {
+                    if (!traceElement.element.parentNode.classList.contains('hidden')) {
                         traceElement.element.style.backgroundColor = 'rgba(147,74,172,0.5)';
-                        isFound = true;
+                        break;
                     }
+                    traceElement = traceElement.parent;
                 }
 
             });
 
             viewInTrace.addEventListener('mouseleave', () => {
-                const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
-                traceElement.element.style.backgroundColor = '';
+                let traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];
+
+                while (traceElement !== undefined && traceElement.element.parentNode !== undefined) {
+                    traceElement.element.style.backgroundColor = '';
+                    traceElement = traceElement.parent;
+                }
             });
 
             div.append(viewInTrace);
