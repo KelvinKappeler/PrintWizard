@@ -2,7 +2,6 @@
 - (B - C) State/General Search inspector
 - Add iteration numbers columns in the trace
 - Loop highlight the condition in the trace
-- Iteration number in the trace is not correct
 - (Loop inspector)
 - (Dropdown menu for the trace)
 - (Settings menu)
@@ -23,3 +22,4 @@
 - (A) Trace is not aligned with the line numbers and triangles
 - (D) Open triangles when clicking on a search button in inspector
 - Shift click for all expandable elements
+- Iteration number in the trace is not correct
