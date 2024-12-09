@@ -1,11 +1,8 @@
 === IMPLEMENTATIONS ===
-- (A) Recognize loop in the trace and display it accordingly
-- (A) Trace is not aligned with the line numbers and triangles
 - (B - C) State/General Search inspector
-- (D) Open triangles when clicking on a search button in inspector
-- Double click for all expandable elements
 - Add iteration numbers columns in the trace
 - Loop highlight the condition in the trace
+- Iteration number in the trace is not correct
 - (Loop inspector)
 - (Dropdown menu for the trace)
 - (Settings menu)
@@ -19,3 +16,10 @@
 - (E) Do the report
 - (C) Add documentations
 - (C) Refactor code
+
+
+=== Done ===
+- (A) Recognize loop in the trace and display it accordingly
+- (A) Trace is not aligned with the line numbers and triangles
+- (D) Open triangles when clicking on a search button in inspector
+- Shift click for all expandable elements
