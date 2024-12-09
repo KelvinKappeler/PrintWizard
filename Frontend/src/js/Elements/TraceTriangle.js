@@ -3,14 +3,11 @@ import {BaseTriangle} from "./BaseTriangle.js";
 import {TraceBlock} from "../Trace.js";
 
 /**
- * This class is used to create a triangle element that can be used to toggle the visibility of a DOM element.
+ * This class is used to create a triangle element that can be used to toggle the visibility of a DOM element in the trace.
  */
 export class TraceTriangle extends BaseTriangle {
-    static iconFold = "bi-chevron-down";
-    static iconExpanded = "bi-chevron-right";
-
     /**
-     * Creates a new triangle element that can be used to toggle the visibility of a DOM element.
+     * Creates a new triangle element
      * @param traceBlock {TraceBlock} The elements to toggle.
      * @param isCollapse {Boolean} Whether the elements are initially expanded or not.
      */
@@ -35,6 +32,9 @@ export class TraceTriangle extends BaseTriangle {
 
     }
 
+    /**
+     * Toggles all triangles in the trace block.
+     */
     toggleAll() {
         this.traceBlock.subTriangles.forEach(triangle => {
             if (this.isCollapse) {

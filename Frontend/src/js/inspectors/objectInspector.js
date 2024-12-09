@@ -3,6 +3,9 @@ import {Window} from "../window.js";
 import {PWElement} from "../Elements/PWElement.js";
 import {BaseTriangle} from "../Elements/BaseTriangle.js";
 
+/**
+ * This class is used to manage the object inspector
+ */
 export class ObjectInspector extends PWElement {
 
     static instance = undefined;
@@ -21,6 +24,11 @@ export class ObjectInspector extends PWElement {
         }
     }
 
+    /**
+     * Adds a new object to the object inspector
+     * @param objectValue {ObjectValue} The object to add
+     * @param isWindow {Boolean} Whether the object should be added as a window
+     */
     add(objectValue, isWindow = false) {
         const mainDiv = document.createElement('div');
         mainDiv.classList.add('objectInspectorPanel');
@@ -99,16 +107,27 @@ export class ObjectInspector extends PWElement {
         }
     }
 
+    /**
+     * Clears the object inspector
+     */
     clear() {
         this.element.innerHTML = '';
         this.checkIfEmpty();
     }
 
+    /**
+     * Removes a child from the object inspector
+     * @param child {Element} The child to remove
+     */
     remove(child) {
         this.element.removeChild(child);
         this.checkIfEmpty();
     }
 
+    /**
+     * Creates an empty state div
+     * @returns {HTMLDivElement} The empty state div
+     */
     static createEmptyState() {
         const div = document.createElement('div');
         div.id = 'objectInspectorEmpty';
@@ -116,6 +135,10 @@ export class ObjectInspector extends PWElement {
         return div;
     }
 
+    /**
+     * Checks if the object inspector is empty. If it is, it appends an empty state div
+     * @returns {boolean} Whether the object inspector is empty
+     */
     checkIfEmpty() {
         if (this.element.childElementCount === 0) {
             this.element.append(ObjectInspector.createEmptyState());
@@ -127,6 +150,13 @@ export class ObjectInspector extends PWElement {
         return false;
     }
 
+    /**
+     * Creates a field state div
+     * @param states The states of the object
+     * @param objectValue {ObjectValue} The object value
+     * @param currentField The current field
+     * @returns {HTMLDivElement} The field state div
+     */
     createFieldStateDiv(states, objectValue, currentField) {
         let objectStates = states.stateDictionary.get(objectValue.pointer);
         let fieldStates = objectStates.map(objectVal => [objectVal, objectVal.fields.find(f => f[0] === currentField[0])[1]]);
