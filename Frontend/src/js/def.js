@@ -18,12 +18,14 @@ class TraceElement {
     inlineLoops() {
         let activeLoop = undefined;
         let newContent = [];
+        let currentLoopIteration = 0;
         for (let i = 0; i < this.content.length; i++) {
             if (this.content[i] instanceof StatementTrace && this.content[i].isLoopStatement()) {
                 const stm = this.content[i].inlineLoops();
                 if (activeLoop && activeLoop.line !== stm.line) {
                     newContent.push(activeLoop);
                     activeLoop = undefined;
+                    currentLoopIteration = 0;
                 }
                 if (!activeLoop) {
                     activeLoop = new LoopTrace(this.content[i].lineNumber, [], this, this.content[i].line);
@@ -42,8 +44,9 @@ class TraceElement {
                     cond.forEach(elem => elem.parent = activeLoop);
 
                     const loopIteration = new LoopIterationTrace(
-                        activeLoop.lineNumber, stm.content.slice(index + 1), activeLoop, activeLoop.line, i, cond
+                        activeLoop.lineNumber, stm.content.slice(index + 1), activeLoop, activeLoop.line, currentLoopIteration, cond
                     );
+                    currentLoopIteration++;
 
                     if (loopIteration.content.length !== 0) {
                         loopIteration.content.forEach(elem => elem.parent = loopIteration);
@@ -58,6 +61,7 @@ class TraceElement {
 
             } else {
                 if (activeLoop) newContent.push(activeLoop);
+                currentLoopIteration = 0;
                 activeLoop = undefined;
                 newContent.push(this.content[i].inlineLoops());
             }
