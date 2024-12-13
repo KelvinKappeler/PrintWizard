@@ -111,11 +111,20 @@ export class Trace {
         return triangle;
     }
 
+    /**
+     * Get the first element of the trace that contains the specified object version.
+     * @param {ObjectValue} objectValue - The object value to search for.
+     * @returns {TraceElement} The trace element that contains object.
+     */
     getTraceElementWithObjectValue(objectValue) {
         return this.treeTrace.searchObject(objectValue);
     }
 
-    //check if the fragment or childs contains a /n character and return the number of new lines
+    /**
+     * Count the number of new lines in a document fragment.
+     * @param {Node} fragment - The document fragment to count new lines in.
+     * @returns {number} The number of new lines in the document fragment.
+     */
     countNewLinesInDocumentFragment(fragment) {
         let count = 0;
         fragment.childNodes.forEach(node => {
@@ -128,6 +137,11 @@ export class Trace {
         return count;
     }
 
+    /**
+     * Search for all object values in the trace that satisfy the given condition.
+     * @param {function(ObjectValue): boolean} condition - The condition to search for.
+     * @returns {FlatArray<*, 1>[]}
+     */
     getObjectsGivenCondition(condition) {
         return this.treeTrace.searchObject2(condition).flat();
     }

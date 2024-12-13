@@ -612,7 +612,7 @@ export class ObjectValue extends Value {
         const df = document.createDocumentFragment();
         const span = TraceSpan.createSpan(
             traceSpanType,
-            this.dataType + ": $" + this.pointer
+            this.dataType + ": $" + this.shortPointer()
         );
         span.addEventListener('click', () => {
             ObjectInspector.instance.add(this);
@@ -627,6 +627,10 @@ export class ObjectValue extends Value {
         }
 
         return false;
+    }
+
+    shortPointer() {
+        return this.pointer.toString().slice(-3);
     }
 }
 

@@ -41,7 +41,7 @@ export class ObjectInspector extends PWElement {
         triangle.element.classList.add('triangleObjectInspector');
         triangle.attachTo(titleDiv);
         titleDiv.appendChild(document.createTextNode(
-            objectValue.dataType + ": $" + objectValue.pointer + " (v" + objectValue.version + ")"
+            objectValue.dataType + ": $" + objectValue.shortPointer() + " (v" + objectValue.version + ")"
         ));
         titleDiv.classList.add('objectTitle');
         const openWindow = document.createElement('i');
