@@ -188,7 +188,7 @@ export class ObjectInspector extends PWElement {
 
             const viewInTrace = document.createElement('button');
             viewInTrace.classList.add('viewInTrace');
-            viewInTrace.innerHTML = '<i class="bi bi-search"></i>'; // Add the icon (using Bootstrap icons)
+            viewInTrace.innerHTML = '<i class="bi bi-search"></i>';
 
             viewInTrace.addEventListener('click', () => {
                 const traceElement = pw.trace.getTraceElementWithObjectValue(obj)[0];

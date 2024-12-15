@@ -12,14 +12,14 @@
     <link rel="stylesheet" href="src/css/breadcrumb.css">
     <link rel="stylesheet" href="src/css/inspectors/inspector.css">
     <link rel="stylesheet" href="src/css/inspectors/objectInspector.css">
-    <link rel="stylesheet" href="src/css/inspectors/stateInspector.css">
+    <link rel="stylesheet" href="src/css/inspectors/searchInspector.css">
     <link rel="stylesheet" href="src/css/inspectors/loopInspector.css">
     <link rel="stylesheet" href="src/css/windows.css">
 </head>
 <body>
 <header>
     <a id="logo" href="#" onclick="window.location.reload()">Print Wizard</a>
-    <div class="dropdown">
+    <!--<div class="dropdown">
         <button class="dropdownButton">Objects <i class="bi bi-chevron-down"></i></button>
         <div class="dropdownContent">
             <div class="nestedDropdown">
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
     <div class="dropdown">
         <button class="dropdownButton">Examples <i class="bi bi-chevron-down"></i></button>
         <div class="dropdownContent">
@@ -71,10 +71,9 @@
             <a href="#" onclick="pw.loadData('../Data/Boids/');">Boids</a>
         </div>
     </div>
-    <a href="#">Settings</a>
-    <label>
+    <!--<label>
         <input id="queryBar" type="text" placeholder="Query...">
-    </label>
+    </label>-->
 </header>
 
 <main>
@@ -90,65 +89,7 @@
     <div id="inspector">
         <div class="inspector_tab">
             <button class="tab_button" onclick="pw.openInspectorTab('objectInspector')">Object</button>
-            <button class="tab_button" onclick="pw.openInspectorTab('stateInspector')">State</button>
-            <button class="tab_button" onclick="pw.openInspectorTab('loopInspector')">Loop</button>
-        </div><!----
-        <div id="objectInspector" class="-">
-        </div> -->
-
-        <div id="stateInspector" class="inspectorContent">
-            <h2>General</h2>
-            <table id="objectStateDescription">
-                <tr>
-                    <td><strong>Name:</strong></td>
-                    <td>player</td>
-                </tr>
-                <tr>
-                    <td><strong>Type:</strong></td>
-                    <td>Player</td>
-                </tr>
-            </table>
-            <h2>Object modifications</h2>
-            <table id="stateHierarchy">
-                <tr>
-                    <td>17 | Player player = new Player("Bastien", 30);</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-                <tr>
-                    <td>74 | surname = "Wizard"</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-                <tr>
-                    <td>75 | pv = 30;</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-                <tr>
-                    <td>76 | isDead = False;</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-                <tr>
-                    <td>28 | pv = pv - damages</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-                <tr>
-                    <td>29 | isDead = True</td>
-                    <td><button class="inspect-button"><i class="bi bi-search"></i></button></td>
-                </tr>
-            </table>
-
-        </div>
-
-        <div id="functionInspector" class="inspectorContent">
-            <h1>Function Inspector</h1>
-        </div>
-
-        <div id="loopInspector" class="inspectorContent">
-            <h1>Loop Inspector</h1>
-            <div id="loopDefinition">
-                for (int i = 0; i < 10; i++) {<br>
-                &nbsp &nbsp System.out.println(i);<br>
-                }
-            </div>
+            <button class="tab_button" onclick="pw.openInspectorTab('searchInspector')">Search</button>
         </div>
     </div>
 </main>

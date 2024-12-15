@@ -5,6 +5,7 @@ import {Trace} from "./Trace.js";
 import {ObjectInspector} from "./inspectors/objectInspector.js";
 import {Preconditions} from "./utils/Preconditions.js";
 import {Parser} from "./Search/Parser.js";
+import {SearchInspector} from "./inspectors/SearchInspector.js";
 
 /**
  * This class is responsible to manage PrintWizard
@@ -16,14 +17,10 @@ export class PrintWizard {
         this.jsonData = undefined;
         this.objectInspector = new ObjectInspector();
         this.objectInspector.attachTo(document.querySelector('#inspector'));
+        this.searchInspector = new SearchInspector();
+        this.searchInspector.attachTo(document.querySelector('#inspector'));
         this.trace = undefined;
         this.parser = undefined;
-
-        document.getElementById("queryBar").addEventListener("keyup", (event) => {
-            if (event.key === "Enter") {
-                this.parser.executeQuery(event.target.value);
-            }
-        });
     }
 
     /**
@@ -49,6 +46,8 @@ export class PrintWizard {
 
             this.openInspectorTab('objectInspector');
             this.objectInspector.clear();
+
+            this.searchInspector.clearResult();
         });
     }
 

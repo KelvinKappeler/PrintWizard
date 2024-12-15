@@ -467,13 +467,21 @@ export class LoopIterationTrace extends TraceElement {
         iterationSpan.classList.add('loopIteration');
         line.append(iterationSpan);
         line.append(TraceSpan.wrapKeywords(this.line));
+
+        line.append(document.createTextNode(' -> '));
+
+        const iterCondSpan = document.createElement('span');
+        iterCondSpan.classList.add('loopIterationCondition');
+        iterCondSpan.appendChild(TraceSpan.wrapKeywords(condition.content));
+
+        line.append(iterCondSpan);
         line.append(document.createTextNode(' -> '));
         line.append(condition.result.documentFragment(TraceSpanType.ReturnValuePrimitive));
 
         if (!this.content || this.content.length === 0) {
             trace.addLine(this.lineNumber, line);
         } else {
-            trace.createBlock(this.lineNumber, line, true);
+            this.triangle = trace.createBlock(this.lineNumber, line, true);
             this.content.forEach(e => e.append(trace));
             trace.closeBlock();
         }
@@ -614,7 +622,7 @@ export class ObjectValue extends Value {
             traceSpanType,
             this.dataType + ": $" + this.shortPointer()
         );
-        span.addEventListener('click', () => {
+        span.addEventListener('click', () => {pw.openInspectorTab('objectInspector');
             ObjectInspector.instance.add(this);
         });
         df.appendChild(span);

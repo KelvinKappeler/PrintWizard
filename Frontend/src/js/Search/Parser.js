@@ -44,8 +44,7 @@ export class Parser {
                 const queryArgs = args.filter(arg => !arg.startsWith('--line=') && arg !== '--first' && arg !== '--last');
 
                 if (args.length < 3) {
-                    console.log('Usage: sf <class>.<field> <operator> <value> [--first|--last]');
-                    return;
+                    return 'Usage: sf &lt;class&gt;.&lt;field&gt; &lt;operator&gt; &lt;value&gt; [--first|--last|--line=&lt;number&gt;]';
                 }
 
                 const [className, fieldName] = queryArgs[0].split('.');
@@ -53,8 +52,7 @@ export class Parser {
                 const valueToCompare = queryArgs[2];
 
                 if (!className || !fieldName) {
-                    console.log('Invalid class or field name in query');
-                    return;
+                    return 'Invalid class or field name in query';
                 }
 
                 const operatorFunctions = {
@@ -105,17 +103,60 @@ export class Parser {
                 }
 
                 if (firstOrLastOption === '--first') {
-                    result = result[0] || null;
+                    result = result.slice(0,1) || null;
                 } else if (firstOrLastOption === '--last') {
-                    result = result[result.length - 1] || null;
+                    result = result.slice(result.length - 1) || null;
                 }
+
                 break;
 
+            case 'values':
+                if (args.length < 1) {
+                    return 'Usage: values &lt;class&gt;.&lt;field&gt;';
+                }
+                const [cn, fn] = args[0].split('.');
+                let arr = new Set();
+                this.trace.getObjectsGivenCondition((value) => {
+                    if (value instanceof ObjectValue && value.dataType === cn) {
+                        value.fields.forEach(([fieldKey, fieldValue]) => {
+                            if (fieldKey === fn) {
+                                arr.add(fieldValue.value);
+                                return true;
+                            }
+                        });
+                    }
+                    return false;
+                });
+                return Array.from(arr).sort().join(', ');
+            case 'help':
+                const helpDescription = `
+<pre>
+help:
+    display help for queries syntax
+    
+toggle:
+    open/close every segment of the trace
+
+sf &lt;class&gt;.&lt;field&gt; &lt;operator&gt; &lt;value&gt; [--first|--last|--line=&lt;number&gt;]:
+    search for every object with class &lt;class&gt; and field value satisfying comparison "&lt;field&gt; &lt;operator&gt; &lt;value&gt;"
+        &lt;class&gt;: class name of the object
+        &lt;field&gt;: field name for which comparison will be performed
+        &lt;operator&gt;: comparison operator. Must be one of [=,==,===,!=,!==,&lt;,&lt;=,&gt;,&gt;=]
+        &lt;value&gt;: value to compare with
+
+    Example usage: sf Person.name == Patrick --line=32
+    
+values &lt;class&gt;.&lt;field&gt;
+    list every different value that a field &lt;field&gt; of class &lt;class&gt; takes during program execution
+    
+    Example usage: values Person.name
+</pre>`;
+
+                return helpDescription;
             default:
-                console.log('Unknown command');
-                break;
+                return 'Unknown command. Type "help" for a list of commands.';
         }
 
-        console.log(result);
+        return result;
     }
 }
