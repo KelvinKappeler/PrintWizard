@@ -1,10 +1,10 @@
-import {Breadcrumb} from "./Elements/Breadcrumb.js";
+import {Breadcrumb} from "./elements/Breadcrumb.js";
 import {JsonData} from "./json/JsonData.js";
 import {translateToTreeFormat} from "./JsonTranslate.js";
 import {Trace} from "./Trace.js";
-import {ObjectInspector} from "./inspectors/objectInspector.js";
+import {ObjectInspector} from "./inspectors/ObjectInspector.js";
 import {Preconditions} from "./utils/Preconditions.js";
-import {Parser} from "./Search/Parser.js";
+import {Parser} from "./search/Parser.js";
 import {SearchInspector} from "./inspectors/SearchInspector.js";
 
 /**

@@ -1,4 +1,5 @@
-import {TraceTriangle} from "./Elements/TraceTriangle.js";
+import {TraceTriangle} from "./elements/TraceTriangle.js";
+import {ObjectValue} from "./Def.js";
 
 /**
  * This class is used to show the trace of the program execution.
@@ -117,7 +118,11 @@ export class Trace {
      * @returns {TraceElement} The trace element that contains object.
      */
     getTraceElementWithObjectValue(objectValue) {
-        return this.treeTrace.searchObject(objectValue);
+        let results = this.getObjectsGivenCondition((value) =>
+            value instanceof ObjectValue && value.isLowerVersion(objectValue)
+        )
+        results = results.reduce((prev, curr) => prev[1].version < curr[1].version ? prev : curr);
+        return results[0];
     }
 
     /**
@@ -138,12 +143,12 @@ export class Trace {
     }
 
     /**
-     * Search for all object values in the trace that satisfy the given condition.
+     * search for all object values in the trace that satisfy the given condition.
      * @param {function(ObjectValue): boolean} condition - The condition to search for.
      * @returns {FlatArray<*, 1>[]}
      */
     getObjectsGivenCondition(condition) {
-        return this.treeTrace.searchObject2(condition).flat();
+        return this.treeTrace.searchObject(condition).flat();
     }
 }
 

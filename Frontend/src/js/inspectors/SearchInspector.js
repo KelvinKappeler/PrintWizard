@@ -1,4 +1,4 @@
-import {PWElement} from "../Elements/PWElement.js";
+import {PWElement} from "../elements/PWElement.js";
 
 /**
  * This class is used to manage the object inspector
@@ -23,6 +23,9 @@ export class SearchInspector extends PWElement {
         this.initDesign();
     }
 
+    /**
+     * Initializes the design of the search inspector
+     */
     initDesign() {
         const div = document.createElement('div');
         div.classList.add('searchInspector_header');
@@ -33,14 +36,14 @@ export class SearchInspector extends PWElement {
         input.placeholder = 'Enter query';
         input.addEventListener("keyup", (event) => {
             if (event.key === "Enter") {
-                this.update(pw.parser.executeQuery(event.target.value), event.target.value);
+                this.update(pw.parser.executeQuery(input.value), input.value);
             }
         });
 
         const submitButton = document.createElement('button');
         submitButton.innerHTML = '<i class="bi bi-search"></i>';
-        submitButton.addEventListener("click", (event) => {
-            this.update(pw.parser.executeQuery(input.value), event.target.value);
+        submitButton.addEventListener("click", () => {
+            this.update(pw.parser.executeQuery(input.value), input.value);
         });
 
         const resultDiv = document.createElement('div');
@@ -59,8 +62,12 @@ export class SearchInspector extends PWElement {
         this.resultHeaderDiv = resultHeaderDiv;
     }
 
+    /**
+     * Updates the search inspector with the given query result
+     * @param queryResult {string|Array} The result of the query
+     * @param query {string} The query that was executed
+     */
     update(queryResult, query) {
-        console.log(queryResult);
         this.clearResult();
 
         this.resultHeaderDiv.innerHTML = 'Result for query <span class="searchInspector_query">' + query + '</span>:';

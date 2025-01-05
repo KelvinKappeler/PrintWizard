@@ -35,4 +35,5 @@ build/
 .DS_Store
 
 ### manually ignored ###
-data/Boids/
+Frontend/Data/Boids/
+Frontend/node_modules/

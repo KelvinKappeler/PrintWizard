@@ -1,5 +1,5 @@
-import {Value, FunctionTrace, StatementTrace, ExpressionTrace, AssignmentExpressionTrace} from "./def.js";
-import {Event, Step} from "./json/eventTrace.js";
+import {Value, FunctionTrace, StatementTrace, ExpressionTrace, AssignmentExpressionTrace} from "./Def.js";
+import {Event, Step} from "./json/EventTrace.js";
 
 /**
  * Translates the given trace to a tree format.

@@ -1,6 +1,6 @@
-import {SourceFormat} from "./sourceFormat.js";
-import {ObjectData} from "./objectData.js";
-import {Trace} from "./eventTrace.js";
+import {SourceFormat} from "./SourceFormat.js";
+import {ObjectData} from "./ObjectData.js";
+import {Trace} from "./EventTrace.js";
 import {Preconditions} from "../utils/Preconditions.js";
 
 /**
