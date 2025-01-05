@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
-
 public class Main {
     public static void main(String[] args) throws InterruptedException {
 
@@ -16,7 +15,6 @@ public class Main {
                 .toList();
         int x = 0;
         while(++x<12){
-            //Thread.sleep(50);
             boids = BoidLogic.tickWorld(boids, World.physics);
         }
 
@@ -209,7 +207,7 @@ public class Main {
         }
     }
 
-    static  public class Geometry {
+    static public class Geometry {
 
         public record Vector2(float x, float y){
 
@@ -234,7 +232,7 @@ public class Main {
             }
 
             public Geometry.Vector2 normalized(){
-                if(norm()==0){
+                if (norm()==0){
                     return zero();
                 }else {
                     return this.scale(1/norm());

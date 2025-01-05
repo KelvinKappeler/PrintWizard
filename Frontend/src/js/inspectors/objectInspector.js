@@ -72,7 +72,7 @@ export class ObjectInspector extends PWElement {
 
             const statesDiv = this.createFieldStateDiv(objectValue.states, objectValue, field);
 
-            const fieldTriangle = new BaseTriangle([statesDiv]);
+            const fieldTriangle = new BaseTriangle([statesDiv], true);
             fieldTriangle.element.classList.add('triangleFields');
             fieldTriangle.attachTo(fieldDiv);
             fieldDiv.classList.add('fieldDiv');

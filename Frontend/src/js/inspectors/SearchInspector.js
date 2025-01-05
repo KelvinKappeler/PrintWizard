@@ -72,7 +72,6 @@ export class SearchInspector extends PWElement {
 
             queryResult.forEach(res => {
                 const fragment = res[1].documentFragment();
-                console.log(fragment);
 
                 const viewInTrace = document.createElement('button');
                 viewInTrace.classList.add('viewInTrace');

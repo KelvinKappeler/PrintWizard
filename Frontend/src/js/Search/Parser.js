@@ -30,11 +30,9 @@ export class Parser {
 
             case 'testSearch':
                 result = this.trace.getObjectsGivenCondition((value) => {
-                    if (value instanceof PrimitiveValue) {
-                       return value.value === "Toyota";
-                   }
-                   return false;
+                    return (value instanceof ObjectValue);
                 });
+                console.log(result.length);
                 break;
 
             case 'sf':
