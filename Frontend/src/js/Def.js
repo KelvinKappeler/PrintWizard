@@ -267,17 +267,20 @@ export class FunctionTrace extends TraceElement {
         const headerFragment = document.createElement('span');
 
         headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.FunctionName, this.name));
-        headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, '('));
-        this.args.forEach((arg, index) => {
-            const typeSpan = arg instanceof PrimitiveValue ? TraceSpanType.ArgsValuePrimitive : TraceSpanType.ArgsValue;
-            const fragment = arg.documentFragment(typeSpan);
-            headerFragment.appendChild(fragment);
 
-            if (index < this.args.length - 1) {
-                headerFragment.appendChild(document.createTextNode(", "));
-            }
-        });
-        headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, ')'));
+        if (!this.isExternal) {
+            headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, '('));
+            this.args.forEach((arg, index) => {
+                const typeSpan = arg instanceof PrimitiveValue ? TraceSpanType.ArgsValuePrimitive : TraceSpanType.ArgsValue;
+                const fragment = arg.documentFragment(typeSpan);
+                headerFragment.appendChild(fragment);
+
+                if (index < this.args.length - 1) {
+                    headerFragment.appendChild(document.createTextNode(", "));
+                }
+            });
+            headerFragment.appendChild(TraceSpan.createSpan(TraceSpanType.Parenthesis, ')'));
+        }
 
         if (this.returnVal) {
             const typeSpan = this.returnVal instanceof PrimitiveValue ? TraceSpanType.ReturnValuePrimitive : TraceSpanType.ReturnValue;

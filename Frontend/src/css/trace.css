@@ -44,6 +44,7 @@
     padding-left: 10px;
     white-space: pre;
     cursor: text;
+    background-color: #1e1f22;
 }
 
 .hidden {
